@@ -30,7 +30,7 @@ docker-compose logs -f nginx
 | PHP（`services/php/app/`） | 无需操作，即时生效 |
 | Go（`services/go/app/`） | `docker-compose restart go` |
 | Vue（`frontend/src/`） | `cd frontend && npm run build`，刷新浏览器 |
-| 数据库 SQL（`services/mysql/init/`） | `docker-compose down -v && docker-compose up -d --build` |
+| 数据库 SQL（`services/mysql/init/`） | `docker-compose down -v && docker-compose up -d --build` ⚠️ 删库重建 |
 
 ## 服务地址
 
