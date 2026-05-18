@@ -8,7 +8,7 @@
     style="border-right:none"
   >
     <template v-for="menu in menus">
-      <el-submenu v-if="menu.children && menu.children.length" :key="menu.id" :index="menu.path">
+      <el-submenu v-if="menu.children && menu.children.length" :key="menu.id" :index="String(menu.id)">
         <template slot="title">
           <i v-if="menu.icon" :class="menu.icon"></i>
           <span>{{ menu.name }}</span>
