@@ -10,7 +10,6 @@ services/php/app/.env
 
 # Go
 services/go/app/tmp/
-services/go/app/go.sum
 
 # Node
 frontend/node_modules/
