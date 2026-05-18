@@ -1,0 +1,26 @@
+# Runtime
+runtime/
+.DS_Store
+Thumbs.db
+
+# PHP
+services/php/app/vendor/
+services/php/app/runtime/
+services/php/app/.env
+
+# Go
+services/go/app/tmp/
+services/go/app/go.sum
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Docker
+mysql_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

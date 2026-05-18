@@ -1,0 +1,19 @@
+{
+    "name": "myproject/admin",
+    "description": "后台管理系统",
+    "type": "project",
+    "require": {
+        "php": ">=7.3",
+        "topthink/framework": "5.1.*",
+        "topthink/think-helper": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "application/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
