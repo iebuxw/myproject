@@ -2,7 +2,7 @@
 namespace app\admin\middleware;
 
 use think\facade\Session;
-use think\facade\Db;
+use think\Db;
 
 class Auth
 {

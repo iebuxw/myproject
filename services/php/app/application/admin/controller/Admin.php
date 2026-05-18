@@ -1,7 +1,7 @@
 <?php
 namespace app\admin\controller;
 
-use think\facade\Db;
+use think\Db;
 
 class Admin
 {
