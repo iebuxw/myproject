@@ -18,6 +18,7 @@ WORKDIR /var/www/html
 COPY app/ .
 
 RUN composer install --no-dev --optimize-autoloader \
+    && mkdir -p runtime \
     && chown -R www-data:www-data runtime
 
 EXPOSE 9000
