@@ -89,12 +89,12 @@ CREATE TABLE IF NOT EXISTS `role_menu` (
 -- 初始数据（幂等插入）
 -- ============================================================
 
--- 超级管理员账号: admin / admin123
-INSERT INTO `admin` (`id`, `username`, `password`, `status`) VALUES (1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1)
+-- 超级管理员账号: admin / 123456
+INSERT INTO `admin` (`id`, `username`, `password`, `status`) VALUES (1, 'admin', '$2y$10$sdIYjgSTtx1Py3AjYpzOQOqp4S87kIqWBaR7GZKlAk8KUX5lWj6l2', 1)
 ON DUPLICATE KEY UPDATE `username`=VALUES(`username`);
 
 -- 测试 APP 用户: 13800000000 / 123456
-INSERT INTO `user` (`id`, `phone`, `password`, `nickname`, `gender`) VALUES (1, '13800000000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '测试用户', 1)
+INSERT INTO `user` (`id`, `phone`, `password`, `nickname`, `gender`) VALUES (1, '13800000000', '$2y$10$sdIYjgSTtx1Py3AjYpzOQOqp4S87kIqWBaR7GZKlAk8KUX5lWj6l2', '测试用户', 1)
 ON DUPLICATE KEY UPDATE `phone`=VALUES(`phone`);
 
 -- 角色
