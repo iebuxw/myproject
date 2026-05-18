@@ -11,7 +11,7 @@ docker-compose up -d --build
 # 日常启动（已有镜像，几秒）
 docker-compose up -d
 
-# 停止所有服务（MySQL 数据保留，Redis 数据丢失）
+# 停止所有服务（MySQL + Redis 数据均保留）
 docker-compose down
 
 # ⚠️ 摧毁一切包括数据库（非必要不用）
