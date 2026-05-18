@@ -22,6 +22,18 @@ docker-compose up -d --build
 docker-compose up -d
 ```
 
+### 开发模式（修改代码后生效）
+
+代码目录已 volume 挂载到容器，修改源码后**无需重建镜像**，restart 即可：
+
+| 服务 | 代码路径 | 生效命令 |
+|------|----------|----------|
+| PHP | `services/php/app/` | `docker-compose restart php` |
+| Go | `services/go/app/` | `docker-compose restart go` |
+| Vue | `frontend/src/` | `npm run build && docker-compose restart nginx` |
+
+> Go 容器启动时会比对源码 hash，只有代码实际变更时才重新编译，未改动则秒级启动。
+
 ### 停止所有服务
 
 ```bash

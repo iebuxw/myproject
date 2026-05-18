@@ -10,7 +10,8 @@ class Menu
     // GET /admin/menu/list
     public function index()
     {
-        $menus = Db::table('menu')->order('sort', 'asc')->select()->toArray();
+        $result = Db::table('menu')->order('sort', 'asc')->select();
+        $menus = is_object($result) ? $result->toArray() : $result;
         $tree = $this->buildTree($menus);
         return json(['code' => 0, 'msg' => 'success', 'data' => ['list' => $tree]]);
     }

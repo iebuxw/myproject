@@ -65,13 +65,13 @@ class Auth
 
         $menus = [];
         if (!empty($menuIds)) {
-            $menus = Db::table('menu')
+            $result = Db::table('menu')
                 ->whereIn('id', $menuIds)
                 ->where('status', 1)
                 ->where('type', '<>', 3)
                 ->order('sort', 'asc')
-                ->select()
-                ->toArray();
+                ->select();
+            $menus = is_object($result) ? $result->toArray() : $result;
         }
 
         // 生成树形菜单
