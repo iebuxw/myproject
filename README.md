@@ -2,7 +2,7 @@
 
 全栈项目实战 —— Docker 容器化部署，PHP + Vue2 后台管理系统，Go + Gin 高性能 RESTful API 服务。
 
-> 本项目由 **Claude Code**（AI 编程助手）辅助开发，聚焦系统架构设计与技术选型，零手写代码。
+> 本项目由 **Claude Code**（AI 编程助手）辅助开发，串联本人Docker+PHP+Golang+Vue技术栈的练手项目，零手写代码。
 
 ## 架构设计
 
