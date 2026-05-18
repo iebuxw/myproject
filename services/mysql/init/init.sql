@@ -109,7 +109,9 @@ ON DUPLICATE KEY UPDATE `id`=`id`;
 
 -- 菜单数据
 INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) VALUES
-(1, 0, '系统管理', '', 'el-icon-setting', 0, 1),
+-- 用户管理（to-C 用户）
+(22, 0, '用户管理', '', 'el-icon-user', 0, 1),
+(1, 0, '系统管理', '', 'el-icon-setting', 1, 1),
 (2, 1, '管理员管理', '/system/admin', '', 1, 2),
 (3, 1, '角色管理', '/system/role', '', 2, 2),
 (4, 1, '菜单管理', '/system/menu', '', 3, 2),
@@ -125,8 +127,6 @@ INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) V
 (14, 4, '新增菜单', '', '', 2, 3),
 (15, 4, '编辑菜单', '', '', 3, 3),
 (16, 4, '删除菜单', '', '', 4, 3),
--- 用户管理（to-C 用户）
-(22, 0, '用户管理', '', 'el-icon-user', 1, 1),
 (17, 22, '用户列表', '/system/user', '', 0, 2),
 (18, 17, '查询用户', '', '', 1, 3),
 (19, 17, '新增用户', '', '', 2, 3),
