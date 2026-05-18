@@ -100,6 +100,16 @@ docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM user;"
 docker exec -i mysql mysql -uroot -p"root123" myproject < services/mysql/init/init.sql
 ```
 
+### 加字段怎么搞
+
+```bash
+# 1. 手动改运行中的表（ALTER TABLE，不丢数据）
+docker exec mysql mysql -uroot -p"root123" myproject \
+  -e "ALTER TABLE user ADD COLUMN birthday DATE DEFAULT NULL AFTER gender;"
+
+# 2. 同步更新 init.sql 的 CREATE TABLE 语句，保证下次全新部署也有这个字段
+```
+
 > **千万不要** `docker-compose down -v`，会把 MySQL 数据卷整个删掉，用户数据全丢。
 
 ## 容器内排查
