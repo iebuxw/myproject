@@ -2,6 +2,8 @@
 -- 数据库: myproject
 -- 字符集: utf8mb4
 
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS `myproject` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `myproject`;
 
