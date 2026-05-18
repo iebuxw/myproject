@@ -30,7 +30,7 @@ class Admin
 
         $exists = Db::table('admin')->where('username', $username)->find();
         if ($exists) {
-            return json(['code' => 1005, 'msg' => '用户名已存在', 'data' => null]);
+            return json(['code' => 1005, 'msg' => '管理员账号已存在', 'data' => null]);
         }
 
         $adminId = Db::table('admin')->insertGetId([

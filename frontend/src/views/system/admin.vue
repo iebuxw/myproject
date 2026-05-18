@@ -2,12 +2,12 @@
   <div>
     <el-card>
       <div slot="header">
-        <span>用户管理</span>
+        <span>管理员管理</span>
         <el-button type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="username" label="用户名" />
+        <el-table-column prop="username" label="管理员" />
         <el-table-column prop="status" label="状态" width="80">
           <template slot-scope="{row}">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'">{{ row.status === 1 ? '启用' : '禁用' }}</el-tag>
@@ -25,7 +25,7 @@
 
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
       <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="用户名" required>
+        <el-form-item label="管理员" required>
           <el-input v-model="form.username" :disabled="!!form.id" />
         </el-form-item>
         <el-form-item label="密码" :required="!form.id">
@@ -73,17 +73,17 @@ export default {
       if (res.code === 0) this.roleList = res.data.list
     },
     handleAdd() {
-      this.dialogTitle = '新增用户'
+      this.dialogTitle = '新增管理员'
       this.form = { id: 0, username: '', password: '', role_ids: [] }
       this.dialogVisible = true
     },
     handleEdit(row) {
-      this.dialogTitle = '编辑用户'
+      this.dialogTitle = '编辑管理员'
       this.form = { id: row.id, username: row.username, password: '', role_ids: row.role_ids || [] }
       this.dialogVisible = true
     },
     handleDelete(row) {
-      this.$confirm('确定删除该用户吗?', '提示', { type: 'warning' }).then(async () => {
+      this.$confirm('确定删除该管理员吗?', '提示', { type: 'warning' }).then(async () => {
         const res = await request.delete('/admin/delete', { data: { id: row.id } })
         if (res.code === 0) {
           this.$message.success('删除成功')
@@ -95,7 +95,7 @@ export default {
     },
     async handleSubmit() {
       const { id, username, password, role_ids } = this.form
-      if (!username) return this.$message.warning('请输入用户名')
+      if (!username) return this.$message.warning('请输入管理员用户名')
       if (!id && !password) return this.$message.warning('请输入密码')
 
       const api = id ? request.put : request.post

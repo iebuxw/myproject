@@ -26,7 +26,7 @@ const routes = [
         path: 'system/admin',
         name: 'Admin',
         component: () => import('@/views/system/admin'),
-        meta: { title: '用户管理' }
+        meta: { title: '管理员管理' }
       },
       {
         path: 'system/role',

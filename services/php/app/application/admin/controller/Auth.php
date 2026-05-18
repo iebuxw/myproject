@@ -45,7 +45,7 @@ class Auth
 
         $admin = Db::table('admin')->field('id,username,avatar,status,created_at')->where('id', $adminId)->find();
         if (!$admin) {
-            return json(['code' => 1004, 'msg' => '用户不存在', 'data' => null]);
+            return json(['code' => 1004, 'msg' => '管理员不存在', 'data' => null]);
         }
 
         // 获取角色
