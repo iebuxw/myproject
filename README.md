@@ -28,7 +28,7 @@ docker-compose up -d
 
 | 服务 | 代码路径 | 生效命令 |
 |------|----------|----------|
-| PHP | `services/php/app/` | `docker-compose restart php` |
+| PHP | `services/php/app/` | 即时生效，无需重启 |
 | Go | `services/go/app/` | `docker-compose restart go` |
 | Vue | `frontend/src/` | `npm run build && docker-compose restart nginx` |
 
