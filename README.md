@@ -30,7 +30,7 @@ docker-compose up -d
 |------|----------|----------|
 | PHP | `services/php/app/` | 即时生效，无需重启 |
 | Go | `services/go/app/` | `docker-compose restart go` |
-| Vue | `frontend/src/` | `npm run build && docker-compose restart nginx` |
+| Vue | `frontend/src/` | `npm run build`，刷新浏览器 |
 
 > Go 容器启动时会比对源码 hash，只有代码实际变更时才重新编译，未改动则秒级启动。
 
