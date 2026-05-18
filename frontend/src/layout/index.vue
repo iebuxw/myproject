@@ -34,6 +34,11 @@ export default {
   computed: {
     ...mapState(['admin', 'menus'])
   },
+  created() {
+    if (!this.admin) {
+      this.$store.dispatch('getInfo')
+    }
+  },
   methods: {
     handleCommand(cmd) {
       if (cmd === 'logout') {
