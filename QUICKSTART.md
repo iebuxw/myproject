@@ -30,7 +30,7 @@ docker-compose logs -f nginx
 | PHP（`services/php/app/`） | 无需操作，即时生效 |
 | Go（`services/go/app/`） | `docker-compose restart go` |
 | Vue（`frontend/src/`） | `cd frontend && npm run build`，刷新浏览器 |
-| 数据库 SQL（`services/mysql/init/`） | `docker-compose down -v && docker-compose up -d --build` ⚠️ 删库重建 |
+| 改了 `init.sql` | 手动连接数据库执行对应 SQL（见下方），**勿用 `down -v` 会删数据** |
 
 ## 服务地址
 
@@ -90,12 +90,17 @@ taskkill /PID <PID> /F
 ## 数据库
 
 ```bash
-# 进入 MySQL
+# 进入 MySQL 交互式命令行
 docker exec -it mysql mysql -uroot -p"root123" myproject
 
-# 直接执行 SQL
-docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM admin;"
+# 直接执行一条 SQL
+docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM user;"
+
+# 执行 SQL 文件（改了 init.sql 后这样更新，不会丢数据）
+docker exec -i mysql mysql -uroot -p"root123" myproject < services/mysql/init/init.sql
 ```
+
+> **千万不要** `docker-compose down -v`，会把 MySQL 数据卷整个删掉，用户数据全丢。
 
 ## 容器内排查
 
