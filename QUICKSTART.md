@@ -100,15 +100,26 @@ docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM user;"
 docker exec -i mysql mysql -uroot -p"root123" myproject < services/mysql/init/init.sql
 ```
 
-### 加字段怎么搞
+### 数据库迁移（加字段/加表/改数据）
+
+不改 `init.sql`，而是写迁移文件，自动追踪已执行过的，不会重复跑。
 
 ```bash
-# 1. 手动改运行中的表（ALTER TABLE，不丢数据）
-docker exec mysql mysql -uroot -p"root123" myproject \
-  -e "ALTER TABLE user ADD COLUMN birthday DATE DEFAULT NULL AFTER gender;"
+# 1. 在 services/mysql/migrations/ 下新建 SQL 文件，按编号命名
+#    例如: 001_add_birthday.sql, 002_add_address.sql
 
-# 2. 同步更新 init.sql 的 CREATE TABLE 语句，保证下次全新部署也有这个字段
+# 2. 执行迁移（自动跳过已跑过的）
+bash services/mysql/migrate.sh
 ```
+
+迁移文件内容就是普通 SQL，比如 `001_add_birthday.sql`：
+
+```sql
+ALTER TABLE user ADD COLUMN birthday DATE DEFAULT NULL AFTER gender;
+ALTER TABLE user ADD COLUMN address VARCHAR(255) DEFAULT '' AFTER email;
+```
+
+> 新部署时 `init.sql` 也要同步更新建表语句，保证重建环境不缺字段。
 
 > **千万不要** `docker-compose down -v`，会把 MySQL 数据卷整个删掉，用户数据全丢。
 

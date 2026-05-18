@@ -88,6 +88,14 @@ CREATE TABLE IF NOT EXISTS `role_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色-菜单关联';
 
 -- ============================================================
+-- migrations 表：数据库迁移追踪
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `migrations` (
+    `filename` VARCHAR(255) PRIMARY KEY,
+    `applied_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='迁移记录';
+
+-- ============================================================
 -- 初始数据（幂等插入）
 -- ============================================================
 
