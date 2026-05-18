@@ -18,6 +18,12 @@ Route::post('admin/role/add', 'admin/Role/save');
 Route::put('admin/role/edit', 'admin/Role/update');
 Route::delete('admin/role/delete', 'admin/Role/delete');
 
+// ---------- User ----------
+Route::get('admin/user/list', 'admin/User/index');
+Route::post('admin/user/add', 'admin/User/save');
+Route::put('admin/user/edit', 'admin/User/update');
+Route::delete('admin/user/delete', 'admin/User/delete');
+
 // ---------- Menu ----------
 Route::get('admin/menu/list', 'admin/Menu/index');
 Route::post('admin/menu/add', 'admin/Menu/save');
