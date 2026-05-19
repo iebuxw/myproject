@@ -110,20 +110,27 @@ SET NAMES utf8mb4;
 
 不改 `init.sql`，而是写迁移文件，自动追踪已执行过的，不会重复跑。
 
-```bash
-# 1. 在 services/mysql/migrations/ 下新建 SQL 文件，按编号命名
-#    例如: 001_add_birthday.sql, 002_add_address.sql
+#### 第一步：创建迁移文件
 
-# 2. 执行迁移（自动跳过已跑过的）
-bash services/mysql/migrate.sh
-```
-
-迁移文件内容就是普通 SQL，比如 `001_add_birthday.sql`：
+在 `services/mysql/migrations/` 下新建 SQL 文件，按编号命名，例如 `001_add_birthday.sql`：
 
 ```sql
 ALTER TABLE user ADD COLUMN birthday DATE DEFAULT NULL AFTER gender;
 ALTER TABLE user ADD COLUMN address VARCHAR(255) DEFAULT '' AFTER email;
 ```
+
+#### 第二步：执行迁移
+
+```bash
+# 先重启 MySQL 容器加载新卷（仅首次需要，之后不用）
+docker-compose up -d --force-recreate mysql
+
+# 执行迁移（自动跳过已跑过的）
+docker exec mysql bash /scripts/migrate.sh
+```
+
+> `docker exec` 在 Windows（cmd/PowerShell）和 Linux 上都能正常工作，这是统一的迁移命令。
+> 如果提示 `bash: /scripts/migrate.sh: No such file or directory`，是因为新增的卷挂载还没生效，跑一次 `docker-compose up -d --force-recreate mysql` 即可。
 
 > 新部署时 `init.sql` 也要同步更新建表语句，保证重建环境不缺字段。
 
