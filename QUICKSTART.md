@@ -94,13 +94,16 @@ taskkill /PID <PID> /F
 
 ```bash
 # 进入 MySQL 交互式命令行
-docker exec -it mysql mysql -uroot -p"root123" myproject
+docker exec -it mysql mysql -uroot -p"root123" myproject --default-character-set=utf8mb4
 
 # 直接执行一条 SQL
 docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM user;"
 
 # 执行 SQL 文件（改了 init.sql 后这样更新，不会丢数据）
 docker exec -i mysql mysql -uroot -p"root123" myproject < services/mysql/init/init.sql
+
+# 解决交互式命令中文乱码
+SET NAMES utf8mb4;
 ```
 
 ### 数据库迁移（加字段/加表/改数据）
