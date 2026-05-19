@@ -29,9 +29,9 @@ const routes = [
         meta: { title: '管理员管理' }
       },
       {
-        path: 'system/user',
+        path: 'user/list',
         name: 'User',
-        component: () => import('@/views/system/user'),
+        component: () => import('@/views/user'),
         meta: { title: '用户管理' }
       },
       {

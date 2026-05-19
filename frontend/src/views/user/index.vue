@@ -30,7 +30,7 @@
       </el-table>
     </el-card>
 
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="手机号" required>
           <el-input v-model="form.phone" :disabled="!!form.id" />
@@ -70,7 +70,7 @@
 import request from '@/api'
 
 export default {
-  name: 'SystemUser',
+  name: 'UserList',
   data() {
     return {
       list: [],
@@ -84,8 +84,12 @@ export default {
   },
   methods: {
     async fetchList() {
-      const res = await request.get('/user/list')
-      if (res.code === 0) this.list = res.data.list
+      try {
+        const res = await request.get('/user/list')
+        if (res.code === 0) this.list = res.data.list
+      } catch (e) {
+        // 1001 已由拦截器处理
+      }
     },
     handleAdd() {
       this.dialogTitle = '新增用户'
@@ -107,12 +111,16 @@ export default {
     },
     handleDelete(row) {
       this.$confirm('确定删除该用户吗?', '提示', { type: 'warning' }).then(async () => {
-        const res = await request.delete('/user/delete', { data: { id: row.id } })
-        if (res.code === 0) {
-          this.$message.success('删除成功')
-          this.fetchList()
-        } else {
-          this.$message.error(res.msg)
+        try {
+          const res = await request.delete('/user/delete', { data: { id: row.id } })
+          if (res.code === 0) {
+            this.$message.success('删除成功')
+            this.fetchList()
+          } else {
+            this.$message.error(res.msg)
+          }
+        } catch (e) {
+          // 1001 已由拦截器处理
         }
       }).catch(() => {})
     },
@@ -127,13 +135,17 @@ export default {
         ? { id, password, nickname, email, gender, status }
         : { phone, password, nickname, email, gender }
 
-      const res = await api(url, data)
-      if (res.code === 0) {
-        this.$message.success(id ? '编辑成功' : '新增成功')
-        this.dialogVisible = false
-        this.fetchList()
-      } else {
-        this.$message.error(res.msg)
+      try {
+        const res = await api(url, data)
+        if (res.code === 0) {
+          this.$message.success(id ? '编辑成功' : '新增成功')
+          this.dialogVisible = false
+          this.fetchList()
+        } else {
+          this.$message.error(res.msg)
+        }
+      } catch (e) {
+        // 1001 已由拦截器处理，dialog 会在路由跳转后自然消失
       }
     }
   }
