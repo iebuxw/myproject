@@ -10,7 +10,17 @@ class User
     // GET /admin/user/list
     public function index()
     {
-        $list = Db::table('user')->field('id,phone,nickname,email,gender,avatar,status,created_at,updated_at')->order('id', 'desc')->select();
+        $phone   = input('get.phone', '');
+        $nickname = input('get.nickname', '');
+
+        $query = Db::table('user')->field('id,phone,nickname,email,gender,avatar,status,created_at,updated_at');
+        if (!empty($phone)) {
+            $query->where('phone', 'like', "%$phone%");
+        }
+        if (!empty($nickname)) {
+            $query->where('nickname', 'like', "%$nickname%");
+        }
+        $list = $query->order('id', 'desc')->select();
         return json(['code' => 0, 'msg' => 'success', 'data' => ['list' => $list]]);
     }
 

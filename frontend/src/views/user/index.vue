@@ -5,6 +5,20 @@
         <span>用户管理</span>
         <el-button type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
       </div>
+
+      <el-form :model="searchForm" inline size="small" style="margin-bottom:15px">
+        <el-form-item label="手机号">
+          <el-input v-model="searchForm.phone" placeholder="请输入手机号" clearable @keyup.enter.native="handleSearch" />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input v-model="searchForm.nickname" placeholder="请输入昵称" clearable @keyup.enter.native="handleSearch" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="phone" label="手机号" width="130" />
@@ -74,6 +88,7 @@ export default {
   data() {
     return {
       list: [],
+      searchForm: { phone: '', nickname: '' },
       dialogVisible: false,
       dialogTitle: '',
       form: { id: 0, phone: '', password: '', nickname: '', email: '', gender: 0, status: 1 }
@@ -83,13 +98,23 @@ export default {
     this.fetchList()
   },
   methods: {
-    async fetchList() {
+    async fetchList(params) {
       try {
-        const res = await request.get('/user/list')
+        const res = await request.get('/user/list', { params })
         if (res.code === 0) this.list = res.data.list
       } catch (e) {
         // 1001 已由拦截器处理
       }
+    },
+    handleSearch() {
+      const params = {}
+      if (this.searchForm.phone) params.phone = this.searchForm.phone
+      if (this.searchForm.nickname) params.nickname = this.searchForm.nickname
+      this.fetchList(params)
+    },
+    handleReset() {
+      this.searchForm = { phone: '', nickname: '' }
+      this.fetchList()
     },
     handleAdd() {
       this.dialogTitle = '新增用户'
