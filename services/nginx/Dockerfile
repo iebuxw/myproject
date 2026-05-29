@@ -1,7 +1,7 @@
 # 阶段1: 构建 Vue 前端
 FROM node:14-alpine AS frontend-builder
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN sed -i 's/dl-cdn-alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json* ./

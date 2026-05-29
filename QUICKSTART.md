@@ -32,7 +32,7 @@ docker-compose logs -f nginx
 |----------|----------|
 | PHP（`services/php/app/`） | 无需操作，即时生效 |
 | Go（`services/go/app/`） | `docker-compose restart go` |
-| Vue（`frontend/src/`） | `cd frontend && npm run build`，刷新浏览器 |
+| Vue（`frontend/src/`） | `docker-compose up -d --build`，Docker 缓存未变则秒过 |
 | 数据库（加表/加字段/改数据） | 写迁移文件后执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"` |
 
 ## 服务地址

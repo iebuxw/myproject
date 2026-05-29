@@ -39,7 +39,7 @@ docker-compose config --quiet
 
 ### 前端部署约束
 
-Nginx 卷挂载 `./frontend/dist:/usr/share/nginx/html` 会覆盖容器内构建产物，所以改前端后必须本地 `cd frontend && npm run build`，仅重建 Docker 镜像不生效。
+Nginx 多阶段 Dockerfile 构建 Vue，前端产物打在镜像里。改前端后需 `docker-compose up -d --build`，Docker 缓存机制保证文件未变时不重新构建（秒过）。
 
 ## 架构概览
 
@@ -53,7 +53,7 @@ Nginx 是唯一对外暴露端口的服务（:80），根据路径前缀分发�
 | `/api/` | `go:8080` (Gin) | APP API，前缀 `/api/v1` |
 | `/` | `/usr/share/nginx/html` | Vue 打包后的静态资源 |
 
-Nginx 多阶段 Dockerfile 先编译 Vue（`npm run build`），再将 dist 拷贝到最终镜像。PHP 代码仅存在于 PHP 容器内（COPY 进去的），Nginx 通过 fastcgi_pass 转发，SCRIPT_FILENAME 指向 PHP 容器内路径 `/var/www/html/public/index.php`，没有卷挂载冲突。
+Nginx 多阶段 Dockerfile 构建 Vue 产物打在镜像里，`docker-compose up -d --build` 时 Docker 缓存自动判断是否需要重新构建。PHP 代码通过卷挂载到容器（`application`/`config`/`route`/`public`），本地改代码即时生效。Go 代码同样挂载（`./services/go/app:/app/src`）。Nginx 通过 fastcgi_pass 转发 PHP，SCRIPT_FILENAME 指向 `/var/www/html/public/index.php`。
 
 ### 认证体系
 
