@@ -37,6 +37,10 @@ docker-compose config --quiet
 
 没有配置单元测试、lint 或 CI。
 
+### 前端部署约束
+
+Nginx 卷挂载 `./frontend/dist:/usr/share/nginx/html` 会覆盖容器内构建产物，所以改前端后必须本地 `cd frontend && npm run build`，仅重建 Docker 镜像不生效。
+
 ## 架构概览
 
 ### 路由分发（Nginx → PHP / Go / 静态文件）

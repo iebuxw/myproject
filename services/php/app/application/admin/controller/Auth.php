@@ -2,18 +2,43 @@
 namespace app\admin\controller;
 
 use think\facade\Session;
+use think\facade\Cache;
 use think\Db;
 
 class Auth
 {
+    // GET /admin/auth/captcha
+    public function captcha()
+    {
+        $code = $this->generateCaptchaCode(4);
+        $key = md5(uniqid(mt_rand(), true));
+        Cache::set('captcha:' . $key, strtolower($code), 300);
+
+        $image = $this->drawCaptchaImage($code);
+        $base64 = 'data:image/png;base64,' . base64_encode($image);
+
+        return json(['code' => 0, 'msg' => 'success', 'data' => [
+            'captcha_key' => $key,
+            'captcha_image' => $base64,
+        ]]);
+    }
+
     // POST /admin/auth/login
     public function login()
     {
         $username = input('post.username', '');
         $password = input('post.password', '');
+        $captchaKey = input('post.captcha_key', '');
+        $captchaCode = input('post.captcha_code', '');
 
-        if (empty($username) || empty($password)) {
+        if (empty($username) || empty($password) || empty($captchaKey) || empty($captchaCode)) {
             return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
+        }
+
+        $cachedCode = Cache::get('captcha:' . $captchaKey);
+        Cache::set('captcha:' . $captchaKey, '', 1);
+        if (!$cachedCode || strtolower($captchaCode) !== $cachedCode) {
+            return json(['code' => 1002, 'msg' => '验证码错误', 'data' => null]);
         }
 
         $admin = Db::table('admin')->where('username', $username)->where('status', 1)->find();
@@ -97,5 +122,81 @@ class Auth
             }
         }
         return $tree;
+    }
+
+    private function generateCaptchaCode(int $length = 4): string
+    {
+        $chars = '23456789abcdefghjkmnpqrstuvwxyz';
+        $code = '';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $chars[mt_rand(0, strlen($chars) - 1)];
+        }
+        return $code;
+    }
+
+    private function drawCaptchaImage(string $code): string
+    {
+        $width = 120;
+        $height = 40;
+        $img = imagecreatetruecolor($width, $height);
+
+        $bgColor = imagecolorallocate($img, 243, 243, 243);
+        imagefill($img, 0, 0, $bgColor);
+
+        // 干扰点
+        for ($i = 0; $i < 80; $i++) {
+            $color = imagecolorallocate($img, mt_rand(150, 220), mt_rand(150, 220), mt_rand(150, 220));
+            imagesetpixel($img, mt_rand(0, $width), mt_rand(0, $height), $color);
+        }
+
+        // 干扰线
+        for ($i = 0; $i < 4; $i++) {
+            $color = imagecolorallocate($img, mt_rand(150, 220), mt_rand(150, 220), mt_rand(150, 220));
+            imageline($img, mt_rand(0, $width), mt_rand(0, $height), mt_rand(0, $width), mt_rand(0, $height), $color);
+        }
+
+        // 字符
+        $fontPath = $this->getFontPath();
+        $charWidth = ($width - 20) / strlen($code);
+        for ($i = 0; $i < strlen($code); $i++) {
+            $color = imagecolorallocate($img, mt_rand(30, 120), mt_rand(30, 120), mt_rand(30, 120));
+            $x = 10 + $i * $charWidth + mt_rand(-2, 2);
+            if ($fontPath !== '') {
+                $fontSize = mt_rand(18, 22);
+                $y = mt_rand(22, 30);
+                $angle = mt_rand(-15, 15);
+                imagettftext($img, $fontSize, $angle, $x, $y, $color, $fontPath, $code[$i]);
+            } else {
+                $y = mt_rand(8, 14);
+                imagestring($img, 5, (int)$x, $y, $code[$i], $color);
+            }
+        }
+
+        ob_start();
+        imagepng($img);
+        $data = ob_get_clean();
+        imagedestroy($img);
+
+        return $data;
+    }
+
+    private function getFontPath(): string
+    {
+        // 优先使用系统字体，回退到 ThinkPHP 内置字体
+        $systemFont = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
+        if (file_exists($systemFont)) {
+            return $systemFont;
+        }
+        $tpFont = dirname(__DIR__, 3) . '/think/library/think/captcha/ttfs/1.ttf';
+        if (file_exists($tpFont)) {
+            return $tpFont;
+        }
+        // Windows 常见字体路径
+        $winFont = 'C:/Windows/Fonts/arial.ttf';
+        if (file_exists($winFont)) {
+            return $winFont;
+        }
+        // 最后回退：使用内置默认（GD 会用默认字体）
+        return '';
     }
 }

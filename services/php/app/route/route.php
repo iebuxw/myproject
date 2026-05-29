@@ -2,6 +2,7 @@
 use think\facade\Route;
 
 // ---------- Auth ----------
+Route::get('admin/auth/captcha', 'admin/Auth/captcha');
 Route::post('admin/auth/login', 'admin/Auth/login');
 Route::post('admin/auth/logout', 'admin/Auth/logout');
 Route::get('admin/auth/info', 'admin/Auth/info');

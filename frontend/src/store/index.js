@@ -10,7 +10,9 @@ export default new Vuex.Store({
     token: getToken(),
     admin: null,
     roles: [],
-    menus: []
+    menus: [],
+    captchaKey: '',
+    captchaImage: ''
   },
   mutations: {
     SET_TOKEN(state, token) {
@@ -26,6 +28,10 @@ export default new Vuex.Store({
     SET_MENUS(state, menus) {
       state.menus = menus
     },
+    SET_CAPTCHA(state, { key, image }) {
+      state.captchaKey = key
+      state.captchaImage = image
+    },
     CLEAR(state) {
       state.token = ''
       state.admin = null
@@ -35,12 +41,28 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // 获取验证码
+    async getCaptcha({ commit }) {
+      const res = await request.get('/auth/captcha')
+      if (res.code === 0) {
+        commit('SET_CAPTCHA', { key: res.data.captcha_key, image: res.data.captcha_image })
+      }
+      return res
+    },
+
     // 登录
-    async login({ commit, dispatch }, { username, password }) {
-      const res = await request.post('/auth/login', { username, password })
+    async login({ commit, dispatch, state }, { username, password, captcha_code }) {
+      const res = await request.post('/auth/login', {
+        username,
+        password,
+        captcha_key: state.captchaKey,
+        captcha_code
+      })
       if (res.code === 0) {
         commit('SET_TOKEN', res.data.token)
         await dispatch('getInfo')
+      } else {
+        dispatch('getCaptcha')
       }
       return res
     },
