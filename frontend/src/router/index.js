@@ -45,6 +45,12 @@ const routes = [
         name: 'Menu',
         component: () => import('@/views/system/menu'),
         meta: { title: '菜单管理' }
+      },
+      {
+        path: 'log/login',
+        name: 'LoginLog',
+        component: () => import('@/views/log/login'),
+        meta: { title: '登录日志' }
       }
     ]
   }

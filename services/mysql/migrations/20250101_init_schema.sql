@@ -1,0 +1,72 @@
+-- 建表
+CREATE TABLE IF NOT EXISTS `admin` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL,
+    `password` VARCHAR(255) NOT NULL COMMENT 'bcrypt hash',
+    `avatar` VARCHAR(255) DEFAULT '' COMMENT '头像',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='后台管理员';
+
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `phone` VARCHAR(20) NOT NULL COMMENT '手机号',
+    `password` VARCHAR(255) NOT NULL COMMENT 'bcrypt hash',
+    `nickname` VARCHAR(50) DEFAULT '' COMMENT '昵称',
+    `avatar` VARCHAR(255) DEFAULT '' COMMENT '头像',
+    `email` VARCHAR(100) DEFAULT '' COMMENT '邮箱',
+    `gender` TINYINT DEFAULT 0 COMMENT '0未知 1男 2女',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_phone` (`phone`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='APP用户';
+
+CREATE TABLE IF NOT EXISTS `role` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(50) NOT NULL,
+    `description` VARCHAR(255) DEFAULT '',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色';
+
+CREATE TABLE IF NOT EXISTS `menu` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `parent_id` INT UNSIGNED DEFAULT 0 COMMENT '父级ID',
+    `name` VARCHAR(50) NOT NULL COMMENT '菜单名',
+    `path` VARCHAR(200) DEFAULT '' COMMENT '路由路径',
+    `icon` VARCHAR(50) DEFAULT '' COMMENT '图标',
+    `sort` INT DEFAULT 0 COMMENT '排序',
+    `type` TINYINT NOT NULL COMMENT '1目录 2菜单 3按钮',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单权限';
+
+CREATE TABLE IF NOT EXISTS `admin_role` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `admin_id` INT UNSIGNED NOT NULL,
+    `role_id` INT UNSIGNED NOT NULL,
+    UNIQUE KEY `uk_admin_role` (`admin_id`, `role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员-角色关联';
+
+CREATE TABLE IF NOT EXISTS `role_menu` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `role_id` INT UNSIGNED NOT NULL,
+    `menu_id` INT UNSIGNED NOT NULL,
+    UNIQUE KEY `uk_role_menu` (`role_id`, `menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色-菜单关联';
+
+CREATE TABLE IF NOT EXISTS `login_log` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL COMMENT '登录账号',
+    `ip` VARCHAR(45) DEFAULT '' COMMENT '登录IP',
+    `user_agent` VARCHAR(500) DEFAULT '' COMMENT '浏览器UA',
+    `status` TINYINT NOT NULL DEFAULT 1 COMMENT '1成功 0失败',
+    `message` VARCHAR(200) DEFAULT '' COMMENT '备注（失败原因等）',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='登录日志';

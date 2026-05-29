@@ -31,22 +31,29 @@ class Auth
         $captchaKey = input('post.captcha_key', '');
         $captchaCode = input('post.captcha_code', '');
 
+        $ip   = request()->ip();
+        $ua   = substr(request()->header('user-agent', ''), 0, 500);
+
         if (empty($username) || empty($password) || empty($captchaKey) || empty($captchaCode)) {
+            $this->logLogin($username, $ip, $ua, 0, '参数错误');
             return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
         }
 
         $cachedCode = Cache::get('captcha:' . $captchaKey);
         Cache::set('captcha:' . $captchaKey, '', 1);
         if (!$cachedCode || strtolower($captchaCode) !== $cachedCode) {
+            $this->logLogin($username, $ip, $ua, 0, '验证码错误');
             return json(['code' => 1002, 'msg' => '验证码错误', 'data' => null]);
         }
 
         $admin = Db::table('admin')->where('username', $username)->where('status', 1)->find();
         if (!$admin || !password_verify($password, $admin['password'])) {
+            $this->logLogin($username, $ip, $ua, 0, '用户名或密码错误');
             return json(['code' => 1003, 'msg' => '用户名或密码错误', 'data' => null]);
         }
 
         Session::set('admin_id', $admin['id']);
+        $this->logLogin($username, $ip, $ua, 1, '登录成功');
 
         return json(['code' => 0, 'msg' => 'success', 'data' => [
             'token' => session_id(),
@@ -198,5 +205,16 @@ class Auth
         }
         // 最后回退：使用内置默认（GD 会用默认字体）
         return '';
+    }
+
+    private function logLogin(string $username, string $ip, string $ua, int $status, string $message): void
+    {
+        Db::table('login_log')->insert([
+            'username'   => $username,
+            'ip'         => $ip,
+            'user_agent' => $ua,
+            'status'     => $status,
+            'message'    => $message,
+        ]);
     }
 }

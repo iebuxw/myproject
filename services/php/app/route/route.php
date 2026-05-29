@@ -30,3 +30,7 @@ Route::get('admin/menu/list', 'admin/Menu/index');
 Route::post('admin/menu/add', 'admin/Menu/save');
 Route::put('admin/menu/edit', 'admin/Menu/update');
 Route::delete('admin/menu/delete', 'admin/Menu/delete');
+
+// ---------- LoginLog ----------
+Route::get('admin/login_log/list', 'admin/LoginLog/index');
+Route::delete('admin/login_log/delete', 'admin/LoginLog/delete');

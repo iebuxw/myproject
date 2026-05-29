@@ -33,7 +33,7 @@ docker-compose logs -f nginx
 | PHP（`services/php/app/`） | 无需操作，即时生效 |
 | Go（`services/go/app/`） | `docker-compose restart go` |
 | Vue（`frontend/src/`） | `cd frontend && npm run build`，刷新浏览器 |
-| 改了 `init.sql` | 手动连接数据库执行对应 SQL（见下方），**勿用 `down -v` 会删数据** |
+| 数据库（加表/加字段/改数据） | 写迁移文件后执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"` |
 
 ## 服务地址
 
@@ -99,20 +99,17 @@ docker exec -it mysql mysql -uroot -p"root123" myproject --default-character-set
 # 直接执行一条 SQL
 docker exec mysql mysql -uroot -p"root123" myproject -e "SELECT * FROM user;"
 
-# 执行 SQL 文件（改了 init.sql 后这样更新，不会丢数据）
-docker exec -i mysql mysql -uroot -p"root123" myproject < services/mysql/init/init.sql
-
 # 解决交互式命令中文乱码
 SET NAMES utf8mb4;
 ```
 
 ### 数据库迁移（加字段/加表/改数据）
 
-不改 `init.sql`，而是写迁移文件，自动追踪已执行过的，不会重复跑。
+数据库变更统一通过迁移文件管理，**不改 init.sql**。migrate.sh 自动追踪已执行过的文件，不会重复跑。
 
 #### 第一步：创建迁移文件
 
-在 `services/mysql/migrations/` 下新建 SQL 文件，按编号命名，例如 `001_add_birthday.sql`：
+在 `services/mysql/migrations/` 下新建 SQL 文件，按日期+描述命名，例如 `20260601_add_birthday.sql`：
 
 ```sql
 ALTER TABLE user ADD COLUMN birthday DATE DEFAULT NULL AFTER gender;
@@ -122,17 +119,10 @@ ALTER TABLE user ADD COLUMN address VARCHAR(255) DEFAULT '' AFTER email;
 #### 第二步：执行迁移
 
 ```bash
-# 先重启 MySQL 容器加载新卷（仅首次需要，之后不用）
-docker-compose up -d --force-recreate mysql
-
-# 执行迁移（自动跳过已跑过的）
-docker exec mysql bash /scripts/migrate.sh
+docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"
 ```
 
-> `docker exec` 在 Windows（cmd/PowerShell）和 Linux 上都能正常工作，这是统一的迁移命令。
-> 如果提示 `bash: /scripts/migrate.sh: No such file or directory`，是因为新增的卷挂载还没生效，跑一次 `docker-compose up -d --force-recreate mysql` 即可。
-
-> 新部署时 `init.sql` 也要同步更新建表语句，保证重建环境不缺字段。
+> Windows 下迁移脚本有换行符问题，用 `tr -d '\r'` 处理。Linux/Mac 下直接 `docker exec mysql bash /scripts/migrate.sh` 即可。
 
 > **千万不要** `docker-compose down -v`，会把 MySQL 数据卷整个删掉，用户数据全丢。
 
@@ -154,7 +144,7 @@ docker logs go
 1. 克隆代码
 2. 确保 `.env` 文件存在且配置正确
 3. 确保端口 80、3306、6379 未被占用
-4. `docker-compose up -d --build`
+4. `docker-compose up -d --build`（首次启动自动执行数据库迁移）
 
 ## 统一响应格式
 
