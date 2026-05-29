@@ -62,7 +62,7 @@ Nginx 多阶段 Dockerfile 先编译 Vue（`npm run build`），再将 dist 拷�
 
 ### 数据库
 
-MySQL 5.7，表结构和数据由 `services/mysql/migrations/` 迁移文件管理。`init.sql` 仅建库+迁移追踪表。**改数据库只新增迁移文件**，已有环境执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"`。
+MySQL 5.7，表结构和数据由 `services/mysql/migrations/` 迁移文件管理。`init.sql` 仅建库+迁移追踪表。**改数据库只新增迁移文件**，已有环境执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"`。迁移 SQL 建议幂等（`IF NOT EXISTS`、`ON DUPLICATE KEY UPDATE`），防中途失败重跑出错。
 
 - **admin** — 后台管理员（PHP 后台登录用）
 - **user** — APP 普通用户（Go API 登录用）
