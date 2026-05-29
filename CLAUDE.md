@@ -53,7 +53,7 @@ Nginx 是唯一对外暴露端口的服务（:80），根据路径前缀分发�
 | `/api/` | `go:8080` (Gin) | APP API，前缀 `/api/v1` |
 | `/` | `/usr/share/nginx/html` | Vue 打包后的静态资源 |
 
-Nginx 多阶段 Dockerfile 构建 Vue 产物打在镜像里，`docker-compose up -d --build` 时 Docker 缓存自动判断是否需要重新构建。PHP 代码通过卷挂载到容器（`application`/`config`/`route`/`public`），本地改代码即时生效。Go 代码同样挂载（`./services/go/app:/app/src`）。Nginx 通过 fastcgi_pass 转发 PHP，SCRIPT_FILENAME 指向 `/var/www/html/public/index.php`。
+Nginx 多阶段 Dockerfile 构建 Vue 产物打在镜像里，`docker-compose up -d --build` 时 Docker 缓存自动判断是否需要重新构建。PHP 代码通过卷挂载到容器（`application`/`config`/`route`/`public`），本地改代码即时生效。Go 代码同样使用多阶段 Dockerfile 构建，二进制打入镜像，改代码后需 `docker-compose up -d --build` 重新构建。Nginx 通过 fastcgi_pass 转发 PHP，SCRIPT_FILENAME 指向 `/var/www/html/public/index.php`。
 
 ### 认证体系
 

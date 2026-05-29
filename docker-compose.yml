@@ -42,8 +42,6 @@ services:
   go:
     build: ./services/go
     container_name: go
-    volumes:
-      - ./services/go/app:/app/src
     depends_on:
       - mysql
       - redis
