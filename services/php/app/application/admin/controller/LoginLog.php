@@ -5,8 +5,6 @@ use think\Db;
 
 class LoginLog
 {
-    protected $middleware = ['app\admin\middleware\Auth', 'app\admin\middleware\OperationLog'];
-
     // GET /admin/login_log/list
     public function index()
     {

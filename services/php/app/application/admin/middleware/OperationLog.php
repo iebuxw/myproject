@@ -69,7 +69,7 @@ class OperationLog
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
         } catch (\Exception $e) {
-            // 日志写入失败不影响业务
+            \think\facade\Log::error('OperationLog error: ' . $e->getMessage());
         }
 
         return $response;
