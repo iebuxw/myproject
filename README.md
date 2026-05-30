@@ -12,7 +12,7 @@
                     │  静态资源 · 反向代理 · 路由分发      │
                     └──────┬──────┬──────┬──────────────┘
                            │      │      │
-                 /         │   /admin   │    /api/v1
+                 /         │   /admin   │    /api/v1  /swagger/
            ┌───────────┐   │      ┌────┴────┐      ┌──────────────┐
            │ Vue 静态页  │   │      │ PHP-FPM │      │   Go (Gin)   │
            │ (Element   │   │      │ (TP5.1) │      │   高性能API    │
@@ -21,13 +21,18 @@
                            │     ┌────┴────┐          ┌───┴───┐
                            │     │  Redis  │          │ Redis │
                            │     │ Session │          │ JWT   │
-                           │     └────┬────┘          │ 黑名单 │
+                           │     │ CAPTCHA │          │ 黑名单 │
+                           │     └────┬────┘          └───┬───┘
+                           │          │               ┌───┴───┐
+                           │          │               │Swagger│
+                           │          │               │  Docs │
                            │          │               └───┬───┘
                            │     ┌────┴──────────────────┴───┐
                            │     │         MySQL 5.7         │
                            │     │  admin / user / role /    │
                            │     │  menu / admin_role /      │
-                           │     │  role_menu                │
+                           │     │  role_menu / login_log /  │
+                           │     │  operation_log             │
                            │     └───────────────────────────┘
 ```
 
@@ -38,8 +43,8 @@
 | **PHP + Vue2** | 内部后台管理 | PHP 生态成熟的 ThinkPHP，Vue2 + Element UI 快速搭建 CRUD 界面 |
 | **Go + Gin** | 对外开放 API | Go 高并发、低内存，Gin 性能接近原生 HTTP，适合 to-C 场景 |
 | **Nginx** | 统一网关 | 路径分发、静态资源、负载均衡，对外只暴露 80 端口 |
-| **MySQL** | 持久化存储 | 关系型数据库，6 表支撑 RBAC 权限体系 |
-| **Redis** | 缓存 / 会话 | PHP Session 存储 + Go JWT 黑名单，TTL 自动过期 |
+| **MySQL** | 持久化存储 | 关系型数据库，8 表支撑 RBAC 权限 + 日志审计体系 |
+| **Redis** | 缓存 / 会话 | PHP Session + CAPTCHA 验证码存储，Go JWT 黑名单，TTL 自动过期 |
 
 ## 技术栈
 
@@ -47,11 +52,13 @@
 |------|------|------|
 | 后台框架 | ThinkPHP | 5.1 |
 | 后台语言 | PHP | 7.4-fpm |
-| API 框架 | Gin + GORM | Go 1.18.9 |
+| API 框架 | Gin + GORM | Go 1.18 |
+| API 文档 | swaggo/swag | 自动生成 Swagger UI |
 | 前端 | Vue2 + Element UI + Vuex + Vue Router | — |
 | 数据库 | MySQL | 5.7 |
-| 缓存 | Redis | 3 |
-| Web 服务器 | Nginx | stable-alpine |
+| 缓存 | Redis | 3 (128MB / allkeys-lru) |
+| Web 服务器 | Nginx | 1.24-alpine |
+| Excel 处理 | PhpSpreadsheet | ^1.29 |
 | 容器编排 | Docker Compose | 3.8 |
 
 ## 核心亮点
@@ -82,14 +89,47 @@
 - **Bearer 标准**：`Authorization: Bearer <token>`
 - **密码安全**：bcrypt 哈希存储，`golang.org/x/crypto/bcrypt`
 
-### 3. Docker 容器化
+### 3. 登录验证码
+
+- **GD 生成**：4 位随机字符验证码，Base64 图片返回前端
+- **Redis 存储**：验证码键值存入 Redis，TTL 300s 自动过期
+- **防暴力破解**：登录接口必须携带 `captcha_key` + `captcha_code`
+
+### 4. 日志审计
+
+**登录日志**：
+- 自动记录每次登录尝试（成功/失败），含账号、IP、User-Agent、失败原因
+- 前端支持日期范围、状态筛选，分页浏览
+
+**操作日志**：
+- OperationLog 中间件自动拦截 POST/PUT/DELETE 请求，记录操作人、模块、动作、参数
+- 密码字段自动脱敏为 `******`
+- 路由自动映射为中文模块名（admin→管理员管理，role→角色管理，…）
+- 前端支持模块/用户名/日期筛选，详情弹窗展示 JSON 参数
+
+### 5. 用户导入导出
+
+- **导出**：按搜索条件生成 `.xlsx` 文件，含手机号/昵称/邮箱/性别/状态/创建时间
+- **导入**：上传 `.xlsx/.xls`，跳过已存在手机号，默认密码 `123456`（bcrypt 哈希）
+- **前端**：导出按钮直接下载，导入支持拖拽上传
+
+### 6. Swagger API 文档
+
+- **自动生成**：Go Docker 构建时执行 `swag init`，从注解生成 OpenAPI 规范
+- **在线浏览**：`http://localhost/swagger/index.html`，Nginx 代理到 Go 服务
+- **Bearer 认证**：注解使用 `@Security Bearer`，关联全局 SecurityDefinition
+
+### 7. Docker 容器化
 
 - **一键部署**：`docker-compose up -d --build`，5 个服务自动编排
-- **多阶段构建**：Nginx 镜像先编译 Vue 再打包，最终镜像仅含静态文件
-- **开发热加载**：源码目录 volume 挂载，改 PHP 即时生效，Go 增量编译（仅在源码变更时重新构建）
+- **多阶段构建**：Nginx 镜像（node 编译 Vue → nginx 托管）、Go 镜像（golang 编译 + swag init → alpine 运行），最终镜像仅含产物
+- **开发热加载**：PHP 代码通过卷挂载即时生效
 - **环境隔离**：数据库密码、JWT 密钥等敏感配置通过 `.env` 注入
+- **数据库迁移**：MySQL 首次启动自动执行幂等迁移脚本，后续新增迁移文件即可
 
-### 4. RESTful API 设计
+### 8. RESTful API 设计
+
+**Go API**：
 
 ```
 POST   /api/v1/auth/login      # 登录
@@ -97,11 +137,43 @@ POST   /api/v1/auth/refresh    # 刷新 Token
 POST   /api/v1/auth/logout     # 登出
 GET    /api/v1/user/profile    # 获取个人信息
 PUT    /api/v1/user/profile    # 修改个人信息
+GET    /swagger/index.html     # Swagger API 文档
+```
+
+**PHP 后台 API**：
+
+```
+GET    /admin/auth/captcha         # 获取验证码
+POST   /admin/auth/login           # 登录
+POST   /admin/auth/logout          # 登出
+GET    /admin/auth/info            # 获取管理员信息
+GET    /admin/admin/list           # 管理员列表
+POST   /admin/admin/add            # 新增管理员
+PUT    /admin/admin/edit           # 编辑管理员
+DELETE /admin/admin/delete         # 删除管理员
+GET    /admin/role/list            # 角色列表
+POST   /admin/role/add             # 新增角色
+PUT    /admin/role/edit            # 编辑角色
+DELETE /admin/role/delete          # 删除角色
+GET    /admin/user/list            # 用户列表
+POST   /admin/user/add             # 新增用户
+PUT    /admin/user/edit            # 编辑用户
+DELETE /admin/user/delete          # 删除用户
+GET    /admin/user/export          # 导出用户 Excel
+POST   /admin/user/import          # 导入用户 Excel
+GET    /admin/menu/list            # 菜单列表
+POST   /admin/menu/add             # 新增菜单
+PUT    /admin/menu/edit            # 编辑菜单
+DELETE /admin/menu/delete          # 删除菜单
+GET    /admin/login_log/list       # 登录日志列表
+DELETE /admin/login_log/delete     # 删除登录日志
+GET    /admin/operation_log/list   # 操作日志列表
+DELETE /admin/operation_log/delete # 删除操作日志
 ```
 
 - **统一响应格式**：`{"code": 0, "msg": "success", "data": {...}}`
 - **语义化错误码**：`0` 成功 / `1001` 未登录 / `1002` 参数错误 / `1003` 认证失败 / `500` 服务端错误
-- **幂等设计**：数据库初始化 SQL 全量 `ON DUPLICATE KEY UPDATE`，可重复执行
+- **幂等设计**：迁移 SQL 全量 `IF NOT EXISTS` / `ON DUPLICATE KEY UPDATE`，可重复执行
 
 ## 快速开始
 
@@ -122,6 +194,7 @@ docker-compose up -d --build
 | 管理后台 | http://localhost | Vue2 + Element UI |
 | PHP API | http://localhost/admin | ThinkPHP 5.1 |
 | Go API | http://localhost/api/v1 | Gin + GORM |
+| Swagger 文档 | http://localhost/swagger/index.html | Go API 在线文档 |
 
 ## 默认账号
 
@@ -132,11 +205,13 @@ docker-compose up -d --build
 
 ## 数据库设计
 
-6 张表，严格区分 **管理员（内部）** 与 **用户（to-C）** 两个体系：
+8 张表，严格区分 **管理员（内部）** 与 **用户（to-C）** 两个体系：
 
 ```
 admin ──MM── role ──MM── menu
 user (独立，Go API 管理)
+login_log      (登录日志)
+operation_log  (操作日志，关联 admin)
 ```
 
 | 表 | 说明 | 关键字段 |
@@ -147,6 +222,8 @@ user (独立，Go API 管理)
 | `menu` | 菜单/权限 | parent_id, name, path, type(1目录2菜单3按钮) |
 | `admin_role` | 管理员↔角色 | admin_id, role_id |
 | `role_menu` | 角色↔菜单 | role_id, menu_id |
+| `login_log` | 登录日志 | username, ip, user_agent, status, message |
+| `operation_log` | 操作日志 | admin_id, username, module, action, method, url, params, ip |
 
 ## API 示例（Go 服务）
 
@@ -170,6 +247,26 @@ curl -X PUT http://localhost/api/v1/user/profile \
   -d '{"nickname":"新昵称","email":"test@example.com","gender":1}'
 ```
 
+## API 示例（PHP 后台）
+
+```bash
+# 获取验证码
+curl http://localhost/admin/auth/captcha
+
+# 登录（需验证码）
+curl -X POST http://localhost/admin/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"123456","captcha_key":"xxx","captcha_code":"abcd"}'
+
+# 导出用户 Excel
+curl http://localhost/admin/user/export -b "PHPSESSID=<session_id>"
+
+# 导入用户 Excel
+curl -X POST http://localhost/admin/user/import \
+  -b "PHPSESSID=<session_id>" \
+  -F "file=@users.xlsx"
+```
+
 ## 项目结构
 
 ```
@@ -177,25 +274,35 @@ myproject/
 ├── frontend/src/                 # Vue2 前端
 │   ├── api/                      # axios 封装 + 拦截器
 │   ├── router/                   # 路由表 + beforeEach 守卫
-│   ├── store/                    # Vuex 状态管理
+│   ├── store/                    # Vuex 状态管理（含验证码）
 │   ├── layout/                   # 主布局（侧边栏 + 顶栏）
 │   ├── components/               # 公共组件（Sidebar）
-│   └── views/system/             # 管理员 / 角色 / 菜单 / 用户管理
+│   └── views/
+│       ├── login/index.vue       # 登录页（含验证码）
+│       ├── dashboard/index.vue
+│       ├── user/index.vue        # 用户管理（含导入导出）
+│       ├── system/               # 管理员 / 角色 / 菜单管理
+│       └── log/                  # 登录日志 / 操作日志
 ├── services/
 │   ├── nginx/                    # Nginx 配置 + 多阶段 Dockerfile
 │   ├── php/app/
 │   │   ├── application/admin/
-│   │   │   ├── controller/       # Auth, Admin, Role, Menu, User
-│   │   │   └── middleware/       # Auth 中间件（RBAC）
+│   │   │   ├── controller/       # Auth, Admin, Role, Menu, User, LoginLog, OperationLog
+│   │   │   └── middleware/       # Auth 中间件（RBAC）+ OperationLog 中间件
 │   │   ├── config/               # 数据库/缓存/Session 配置
-│   │   └── route/                # 路由定义
+│   │   └── route/                # 路由定义（含中间件路由组）
 │   ├── go/app/
 │   │   ├── handler/              # auth.go, user.go
 │   │   ├── middleware/           # JWT 中间件
 │   │   ├── model/                # User 模型 + Response 结构体
-│   │   ├── router/               # Gin 路由 + CORS
-│   │   └── config/               # 环境变量读取
-│   └── mysql/init/               # 幂等初始化 SQL（6 表 + 种子数据）
+│   │   ├── router/               # Gin 路由 + CORS + Swagger
+│   │   ├── config/               # 环境变量读取
+│   │   └── docs/                 # swag 自动生成的 Swagger 文档
+│   ├── mysql/
+│   │   ├── init/                 # init.sql（建库 + 迁移追踪表）
+│   │   └── migrations/           # 时间戳迁移文件（幂等）
+│   └── redis/
+│       └── redis.conf            # 自定义配置（128MB / allkeys-lru）
 ├── docker-compose.yml            # 5 服务编排
 ├── .env                          # 环境变量（不入库）
 └── CLAUDE.md                     # AI 编程助手指令
@@ -206,8 +313,8 @@ myproject/
 | 服务 | 代码路径 | 修改后生效方式 |
 |------|----------|---------------|
 | PHP | `services/php/app/` | 即时生效（volume 挂载） |
-| Go | `services/go/app/` | `docker-compose restart go`（增量编译） |
-| Vue | `frontend/src/` | `cd frontend && npm run build`，刷新浏览器 |
+| Go | `services/go/app/` | `docker-compose up go -d --build`（多阶段构建） |
+| Vue | `frontend/src/` | `docker-compose up nginx -d --build`（多阶段构建） |
 
 ## 许可
 
