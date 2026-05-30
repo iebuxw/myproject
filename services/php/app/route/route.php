@@ -34,3 +34,7 @@ Route::delete('admin/menu/delete', 'admin/Menu/delete');
 // ---------- LoginLog ----------
 Route::get('admin/login_log/list', 'admin/LoginLog/index');
 Route::delete('admin/login_log/delete', 'admin/LoginLog/delete');
+
+// ---------- OperationLog ----------
+Route::get('admin/operation_log/list', 'admin/OperationLog/index');
+Route::delete('admin/operation_log/delete', 'admin/OperationLog/delete');
