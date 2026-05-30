@@ -1,9 +1,10 @@
 <?php
 namespace app\admin\controller;
 
+use think\Controller;
 use think\Db;
 
-class Menu
+class Menu extends Controller
 {
     // GET /admin/menu/list
     public function index()

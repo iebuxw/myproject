@@ -1,9 +1,10 @@
 <?php
 namespace app\admin\controller;
 
+use think\Controller;
 use think\Db;
 
-class OperationLog
+class OperationLog extends Controller
 {
     // GET /admin/operation_log/list
     public function index()

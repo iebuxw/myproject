@@ -1,11 +1,12 @@
 <?php
 namespace app\admin\controller;
 
+use think\Controller;
 use think\facade\Session;
 use think\facade\Cache;
 use think\Db;
 
-class Auth
+class Auth extends Controller
 {
     // GET /admin/auth/captcha
     public function captcha()

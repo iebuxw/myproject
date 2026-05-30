@@ -1,9 +1,10 @@
 <?php
 namespace app\admin\controller;
 
+use think\Controller;
 use think\Db;
 
-class User
+class User extends Controller
 {
     // GET /admin/user/list
     public function index()

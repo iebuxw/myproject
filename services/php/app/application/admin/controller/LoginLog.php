@@ -1,9 +1,10 @@
 <?php
 namespace app\admin\controller;
 
+use think\Controller;
 use think\Db;
 
-class LoginLog
+class LoginLog extends Controller
 {
     // GET /admin/login_log/list
     public function index()
