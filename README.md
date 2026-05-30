@@ -29,10 +29,6 @@
                            │          │               └───┬───┘
                            │     ┌────┴──────────────────┴───┐
                            │     │         MySQL 5.7         │
-                           │     │  admin / user / role /    │
-                           │     │  menu / admin_role /      │
-                           │     │  role_menu / login_log /  │
-                           │     │  operation_log             │
                            │     └───────────────────────────┘
 ```
 
