@@ -8,6 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 一键构建并启动所有服务
 docker-compose up -d --build
 
+# 只改前端
+docker-compose up nginx -d --build
+# 只改 Go
+docker-compose up go -d --build
+
 # 查看日志
 docker-compose logs -f
 
