@@ -43,7 +43,7 @@ class OperationLog
             // 从路径 /admin/{module}/{action} 解析 module
             $path   = $request->path();
             $parts  = explode('/', $path);
-            $module = isset($parts[1]) ? $parts[1] : '';
+            $module = isset($parts[2]) ? $parts[2] : '';
             $moduleCn = isset(self::$moduleMap[$module]) ? self::$moduleMap[$module] : $module;
 
             $action = isset(self::$actionMap[$method]) ? self::$actionMap[$method] : $method;
