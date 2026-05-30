@@ -46,7 +46,7 @@
 | 层级 | 技术 | 版本 |
 |------|------|------|
 | 后台框架 | ThinkPHP | 5.1 |
-| 后台语言 | PHP | 7.3-fpm |
+| 后台语言 | PHP | 7.4-fpm |
 | API 框架 | Gin + GORM | Go 1.18.9 |
 | 前端 | Vue2 + Element UI + Vuex + Vue Router | — |
 | 数据库 | MySQL | 5.7 |

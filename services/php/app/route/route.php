@@ -23,6 +23,8 @@ Route::group('admin', function () {
 
     // User
     Route::get('user/list', 'admin/User/index');
+    Route::get('user/export', 'admin/User/export');
+    Route::post('user/import', 'admin/User/import');
     Route::post('user/add', 'admin/User/save');
     Route::put('user/edit', 'admin/User/update');
     Route::delete('user/delete', 'admin/User/delete');

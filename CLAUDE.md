@@ -133,7 +133,7 @@ services/php/app/
 └── public/index.php      # TP5.1 入口
 ```
 
-PHP 7.3 + ThinkPHP 5.1。数据库从环境变量读取配置（`getenv()`）。所有 `/admin` 路由通过 `Auth` 中间件（除 login/logout 外），中间件通过 `admin_role` + `role_menu` 获取管理员的 `authPaths`，各控制器自行检查具体按钮权限。
+PHP 7.4 + ThinkPHP 5.1。数据库从环境变量读取配置（`getenv()`）。所有 `/admin` 路由通过 `Auth` 中间件（除 login/logout 外），中间件通过 `admin_role` + `role_menu` 获取管理员的 `authPaths`，各控制器自行检查具体按钮权限。
 
 ### 前端结构
 

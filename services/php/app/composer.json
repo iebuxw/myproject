@@ -3,9 +3,10 @@
     "description": "后台管理系统",
     "type": "project",
     "require": {
-        "php": ">=7.3",
+        "php": ">=7.4",
         "topthink/framework": "5.1.*",
-        "topthink/think-helper": "^1.0"
+        "topthink/think-helper": "^1.0",
+        "phpoffice/phpspreadsheet": "^1.29"
     },
     "autoload": {
         "psr-4": {

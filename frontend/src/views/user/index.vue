@@ -16,6 +16,8 @@
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
+          <el-button type="success" @click="handleExport">导出</el-button>
+          <el-button type="warning" @click="handleImportDialog">导入</el-button>
         </el-form-item>
       </el-form>
 
@@ -43,6 +45,26 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-dialog title="导入用户" :visible.sync="importVisible" width="450px" :close-on-click-modal="false">
+      <el-upload
+        ref="upload"
+        drag
+        :auto-upload="false"
+        :on-change="handleFileChange"
+        :limit="1"
+        accept=".xlsx,.xls"
+        action=""
+      >
+        <i class="el-icon-upload" />
+        <div class="el-upload__text">将 Excel 文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip" slot="tip">支持 .xlsx / .xls 格式，第一行为表头（手机号、昵称、邮箱、性别、状态）</div>
+      </el-upload>
+      <span slot="footer">
+        <el-button @click="importVisible = false">取消</el-button>
+        <el-button type="primary" :loading="importing" @click="handleImportSubmit">确定导入</el-button>
+      </span>
+    </el-dialog>
 
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="80px">
@@ -91,6 +113,9 @@ export default {
       searchForm: { phone: '', nickname: '' },
       dialogVisible: false,
       dialogTitle: '',
+      importVisible: false,
+      importFile: null,
+      importing: false,
       form: { id: 0, phone: '', password: '', nickname: '', email: '', gender: 0, status: 1 }
     }
   },
@@ -115,6 +140,43 @@ export default {
     handleReset() {
       this.searchForm = { phone: '', nickname: '' }
       this.fetchList()
+    },
+    handleExport() {
+      const params = new URLSearchParams()
+      if (this.searchForm.phone) params.append('phone', this.searchForm.phone)
+      if (this.searchForm.nickname) params.append('nickname', this.searchForm.nickname)
+      window.location.href = '/admin/user/export?' + params.toString()
+    },
+    handleImportDialog() {
+      this.importFile = null
+      this.importVisible = true
+      this.$nextTick(() => {
+        this.$refs.upload && this.$refs.upload.clearFiles()
+      })
+    },
+    handleFileChange(file) {
+      this.importFile = file.raw
+    },
+    async handleImportSubmit() {
+      if (!this.importFile) return this.$message.warning('请选择文件')
+      this.importing = true
+      try {
+        const formData = new FormData()
+        formData.append('file', this.importFile)
+        const res = await request.post('/user/import', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (res.code === 0) {
+          this.$message.success(res.msg)
+          this.importVisible = false
+          this.fetchList()
+        } else {
+          this.$message.error(res.msg)
+        }
+      } catch (e) {
+        // 1001 已由拦截器处理
+      }
+      this.importing = false
     },
     handleAdd() {
       this.dialogTitle = '新增用户'
