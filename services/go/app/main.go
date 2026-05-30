@@ -1,3 +1,11 @@
+// @title Go API
+// @version 1.0
+// @description APP 端接口文档
+// @host localhost
+// @BasePath /api/v1
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
 package main
 
 import (

@@ -9,6 +9,8 @@ COPY app/go.mod app/go.sum ./
 RUN GOPROXY=https://goproxy.cn,direct go mod download
 
 COPY app/ .
+RUN GOPROXY=https://goproxy.cn,direct go install github.com/swaggo/swag/cmd/swag@latest \
+    && swag init -g main.go -o ./docs
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o server main.go
 
 # ---- 运行阶段 ----

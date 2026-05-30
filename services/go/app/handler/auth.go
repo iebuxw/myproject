@@ -24,7 +24,17 @@ type LoginReq struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// POST /api/v1/auth/login
+type RefreshReq struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// @Summary 用户登录
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param body body LoginReq true "登录参数"
+// @Success 200 {object} model.Response{data=model.LoginRes}
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,11 +72,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// POST /api/v1/auth/refresh
+// @Summary 刷新token
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param body body handler.RefreshReq true "刷新参数"
+// @Success 200 {object} model.Response{data=model.LoginRes}
+// @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(c *gin.Context) {
-	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"`
-	}
+	var req RefreshReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		model.Error(c, 1002, "参数错误")
 		return
@@ -100,7 +114,12 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 	})
 }
 
-// POST /api/v1/auth/logout
+// @Summary 登出
+// @Tags 认证
+// @Produce json
+// @Param Authorization header string true "Bearer {token}" default(Bearer )
+// @Success 200 {object} model.Response
+// @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	tokenStr, _ := c.Get("token")
 	// 加入黑名单，有效期同 token

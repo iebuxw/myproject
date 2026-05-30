@@ -4,13 +4,20 @@ import (
 	"go-api/handler"
 	"go-api/middleware"
 
+	_ "go-api/docs"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
 func Setup(db *gorm.DB, rdb *redis.Client, secret string) *gin.Engine {
 	r := gin.Default()
+
+	// Swagger
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// CORS
 	r.Use(func(c *gin.Context) {
