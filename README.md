@@ -43,7 +43,7 @@
 | **PHP + Vue2** | 内部后台管理 | PHP 生态成熟的 ThinkPHP，Vue2 + Element UI 快速搭建 CRUD 界面 |
 | **Go + Gin** | 对外开放 API | Go 高并发、低内存，Gin 性能接近原生 HTTP，适合 to-C 场景 |
 | **Nginx** | 统一网关 | 路径分发、静态资源、负载均衡，对外只暴露 80 端口 |
-| **MySQL** | 持久化存储 | 关系型数据库，8 表支撑 RBAC 权限 + 日志审计体系 |
+| **MySQL** | 持久化存储 | 关系型数据库，RBAC 权限 + 日志审计体系 |
 | **Redis** | 缓存 / 会话 | PHP Session + CAPTCHA 验证码存储，Go JWT 黑名单，TTL 自动过期 |
 
 ## 技术栈
@@ -54,9 +54,9 @@
 | 后台语言 | PHP | 7.4-fpm |
 | API 框架 | Gin + GORM | Go 1.18 |
 | API 文档 | swaggo/swag | 自动生成 Swagger UI |
-| 前端 | Vue2 + Element UI + Vuex + Vue Router | — |
+| 前端 | Vue2 + Element UI | — |
 | 数据库 | MySQL | 5.7 |
-| 缓存 | Redis | 3 (128MB / allkeys-lru) |
+| 缓存 | Redis | 3 |
 | Web 服务器 | Nginx | 1.24-alpine |
 | Excel 处理 | PhpSpreadsheet | ^1.29 |
 | 容器编排 | Docker Compose | 3.8 |
