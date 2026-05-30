@@ -5,7 +5,7 @@ use think\Db;
 
 class Menu
 {
-    protected $middleware = ['app\admin\middleware\Auth'];
+    protected $middleware = ['app\admin\middleware\Auth', 'app\admin\middleware\OperationLog'];
 
     // GET /admin/menu/list
     public function index()

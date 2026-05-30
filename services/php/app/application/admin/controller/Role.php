@@ -5,7 +5,7 @@ use think\Db;
 
 class Role
 {
-    protected $middleware = ['app\admin\middleware\Auth'];
+    protected $middleware = ['app\admin\middleware\Auth', 'app\admin\middleware\OperationLog'];
 
     // GET /admin/role/list
     public function index()
