@@ -30,7 +30,7 @@ type UpdateProfileReq struct {
 // @Summary 获取用户信息
 // @Tags 用户
 // @Produce json
-// @Param Authorization header string true "Bearer {token}" default(Bearer )
+// @Security Bearer
 // @Success 200 {object} model.Response{data=handler.ProfileRes}
 // @Router /user/profile [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
@@ -56,7 +56,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 // @Tags 用户
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer {token}" default(Bearer )
+// @Security Bearer
 // @Param body body handler.UpdateProfileReq true "更新参数"
 // @Success 200 {object} model.Response
 // @Router /user/profile [put]

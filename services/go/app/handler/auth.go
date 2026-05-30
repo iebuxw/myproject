@@ -117,7 +117,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 // @Summary 登出
 // @Tags 认证
 // @Produce json
-// @Param Authorization header string true "Bearer {token}" default(Bearer )
+// @Security Bearer
 // @Success 200 {object} model.Response
 // @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
