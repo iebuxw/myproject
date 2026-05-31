@@ -1,0 +1,196 @@
+basePath: /api/v1
+definitions:
+  handler.LoginReq:
+    properties:
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - password
+    - phone
+    type: object
+  handler.ProfileRes:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      gender:
+        type: integer
+      id:
+        type: integer
+      nickname:
+        type: string
+      phone:
+        type: string
+    type: object
+  handler.RefreshReq:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handler.UpdateProfileReq:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      gender:
+        type: integer
+      nickname:
+        type: string
+    type: object
+  model.LoginRes:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  model.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+host: localhost
+info:
+  contact: {}
+  description: APP 端接口文档
+  title: Go API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登录参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginRes'
+              type: object
+      summary: 用户登录
+      tags:
+      - 认证
+  /auth/logout:
+    post:
+      parameters:
+      - default: Bearer
+        description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: 登出
+      tags:
+      - 认证
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 刷新参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RefreshReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginRes'
+              type: object
+      summary: 刷新token
+      tags:
+      - 认证
+  /user/profile:
+    get:
+      parameters:
+      - default: Bearer
+        description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.ProfileRes'
+              type: object
+      summary: 获取用户信息
+      tags:
+      - 用户
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer
+        description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 更新参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateProfileReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: 更新用户信息
+      tags:
+      - 用户
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
