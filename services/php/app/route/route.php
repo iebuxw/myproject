@@ -42,4 +42,7 @@ Route::group('admin', function () {
     // OperationLog
     Route::get('operation_log/list', 'admin/OperationLog/index');
     Route::delete('operation_log/delete', 'admin/OperationLog/delete');
+
+    // Server
+    Route::get('server/info', 'admin/Server/info');
 })->middleware(['app\admin\middleware\Auth', 'app\admin\middleware\OperationLog']);
