@@ -19,10 +19,17 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY app/ .
+COPY services/php/app/ .
 
 RUN composer install --no-dev --optimize-autoloader \
     && mkdir -p runtime \
     && chown -R www-data:www-data runtime
+
+# PHP 配置
+COPY services/php/conf/php.ini /usr/local/etc/php/conf.d/custom.ini
+# PHP-FPM 配置
+COPY services/php-fpm/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY services/php-fpm/conf/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY services/php-fpm/conf/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 EXPOSE 9000
