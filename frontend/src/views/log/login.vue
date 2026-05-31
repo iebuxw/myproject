@@ -43,11 +43,6 @@
         </el-table-column>
         <el-table-column prop="message" label="消息" width="150" />
         <el-table-column prop="created_at" label="登录时间" width="180" />
-        <el-table-column label="操作" width="80">
-          <template slot-scope="{row}">
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
       </el-table>
 
       <el-pagination
@@ -112,21 +107,21 @@ export default {
       this.page = page
       this.fetchList()
     },
-    handleDelete(row) {
-      this.$confirm('确定删除该日志吗?', '提示', { type: 'warning' }).then(async () => {
-        try {
-          const res = await request.delete('/login_log/delete', { data: { id: row.id } })
-          if (res.code === 0) {
-            this.$message.success('删除成功')
-            this.fetchList()
-          } else {
-            this.$message.error(res.msg)
-          }
-        } catch (e) {
-          // 1001 已由拦截器处理
-        }
-      }).catch(() => {})
-    }
+    // handleDelete(row) {
+    //   this.$confirm('确定删除该日志吗?', '提示', { type: 'warning' }).then(async () => {
+    //     try {
+    //       const res = await request.delete('/login_log/delete', { data: { id: row.id } })
+    //       if (res.code === 0) {
+    //         this.$message.success('删除成功')
+    //         this.fetchList()
+    //       } else {
+    //         this.$message.error(res.msg)
+    //       }
+    //     } catch (e) {
+    //       // 1001 已由拦截器处理
+    //     }
+    //   }).catch(() => {})
+    // }
   }
 }
 </script>

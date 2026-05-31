@@ -51,7 +51,7 @@
         <el-table-column label="操作" width="80">
           <template slot-scope="{row}">
             <el-button type="text" style="color:#409eff" @click="handleDetail(row)">详情</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
+            <!-- <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -136,21 +136,21 @@ export default {
       }
       this.detailVisible = true
     },
-    handleDelete(row) {
-      this.$confirm('确定删除该日志吗?', '提示', { type: 'warning' }).then(async () => {
-        try {
-          const res = await request.delete('/operation_log/delete', { data: { id: row.id } })
-          if (res.code === 0) {
-            this.$message.success('删除成功')
-            this.fetchList()
-          } else {
-            this.$message.error(res.msg)
-          }
-        } catch (e) {
-          // 1001 已由拦截器处理
-        }
-      }).catch(() => {})
-    }
+    // handleDelete(row) {
+    //   this.$confirm('确定删除该日志吗?', '提示', { type: 'warning' }).then(async () => {
+    //     try {
+    //       const res = await request.delete('/operation_log/delete', { data: { id: row.id } })
+    //       if (res.code === 0) {
+    //         this.$message.success('删除成功')
+    //         this.fetchList()
+    //       } else {
+    //         this.$message.error(res.msg)
+    //       }
+    //     } catch (e) {
+    //       // 1001 已由拦截器处理
+    //     }
+    //   }).catch(() => {})
+    // }
   }
 }
 </script>

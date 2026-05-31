@@ -9,7 +9,7 @@ class Admin extends Controller
     // GET /admin/admin/list
     public function index()
     {
-        $list = Db::table('admin')->field('id,username,avatar,status,created_at,updated_at')->order('id', 'desc')->select();
+        $list = Db::table('admin')->field('id,username,avatar,status,created_at,updated_at')->order('id', 'asc')->select();
         foreach ($list as &$admin) {
             $admin['role_ids'] = Db::table('admin_role')->where('admin_id', $admin['id'])->column('role_id');
         }
