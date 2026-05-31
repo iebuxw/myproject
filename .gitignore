@@ -23,9 +23,6 @@ mysql_data/
 # Claude
 .claude/settings.local.json
 
-# Docs
-docs/
-
 # IDE
 .idea/
 .vscode/
