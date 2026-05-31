@@ -67,17 +67,17 @@
     </el-dialog>
 
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="手机号" required>
-          <el-input v-model="form.phone" :disabled="!!form.id" />
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" :disabled="!!form.id" autocomplete="off" />
         </el-form-item>
         <el-form-item label="密码" :required="!form.id">
-          <el-input v-model="form.password" type="password" :placeholder="form.id ? '留空不修改' : ''" />
+          <el-input v-model="form.password" type="password" :placeholder="form.id ? '留空不修改' : ''" autocomplete="new-password" />
         </el-form-item>
         <el-form-item label="昵称">
           <el-input v-model="form.nickname" />
         </el-form-item>
-        <el-form-item label="邮箱">
+        <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email" />
         </el-form-item>
         <el-form-item label="性别">
@@ -116,7 +116,16 @@ export default {
       importVisible: false,
       importFile: null,
       importing: false,
-      form: { id: 0, phone: '', password: '', nickname: '', email: '', gender: 0, status: 1 }
+      form: { id: 0, phone: '', password: '', nickname: '', email: '', gender: 0, status: 1 },
+      rules: {
+        phone: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+        ],
+        email: [
+          { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -212,8 +221,12 @@ export default {
       }).catch(() => {})
     },
     async handleSubmit() {
+      try {
+        await this.$refs.form.validate()
+      } catch {
+        return
+      }
       const { id, phone, password, nickname, email, gender, status } = this.form
-      if (!phone) return this.$message.warning('请输入手机号')
       if (!id && !password) return this.$message.warning('请输入密码')
 
       const api = id ? request.put : request.post

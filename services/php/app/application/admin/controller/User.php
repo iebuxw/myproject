@@ -165,17 +165,49 @@ class User extends Controller
             return json(['code' => 1002, 'msg' => '文件中没有数据', 'data' => null]);
         }
 
+        // 根据表头名称映射列索引
+        $headerRow = $rows[0];
+        $colMap = [];
+        foreach ($headerRow as $idx => $title) {
+            $t = trim($title);
+            if ($t === '手机号') $colMap['phone'] = $idx;
+            elseif ($t === '昵称') $colMap['nickname'] = $idx;
+            elseif ($t === '邮箱') $colMap['email'] = $idx;
+            elseif ($t === '性别') $colMap['gender'] = $idx;
+            elseif ($t === '状态') $colMap['status'] = $idx;
+        }
+
+        if (!isset($colMap['phone'])) {
+            return json(['code' => 1002, 'msg' => '缺少"手机号"列', 'data' => null]);
+        }
+
         $genderMap = ['未知' => 0, '男' => 1, '女' => 2];
         $statusMap = ['启用' => 1, '禁用' => 0];
         $success = 0;
         $skip = 0;
+        $errors = [];
 
-        // 跳过表头，从第2行开始
         for ($i = 1, $len = count($rows); $i < $len; $i++) {
             $row = $rows[$i];
-            $phone = trim($row[1] ?? '');
+            $line = $i + 1;
+
+            $phone = trim($row[$colMap['phone']] ?? '');
             if (empty($phone)) {
                 continue;
+            }
+
+            if (!preg_match('/^1[3-9]\d{9}$/', $phone)) {
+                $errors[] = "第{$line}行：手机号格式不正确";
+                continue;
+            }
+
+            $email = '';
+            if (isset($colMap['email'])) {
+                $email = trim($row[$colMap['email']] ?? '');
+                if ($email !== '' && !preg_match('/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $email)) {
+                    $errors[] = "第{$line}行：邮箱格式不正确";
+                    continue;
+                }
             }
 
             $exists = Db::table('user')->where('phone', $phone)->find();
@@ -184,10 +216,9 @@ class User extends Controller
                 continue;
             }
 
-            $nickname = trim($row[2] ?? '');
-            $email    = trim($row[3] ?? '');
-            $gender   = $genderMap[trim($row[4] ?? '')] ?? 0;
-            $status   = $statusMap[trim($row[5] ?? '')] ?? 1;
+            $nickname = isset($colMap['nickname']) ? trim($row[$colMap['nickname']] ?? '') : '';
+            $gender   = isset($colMap['gender']) ? ($genderMap[trim($row[$colMap['gender']] ?? '')] ?? 0) : 0;
+            $status   = isset($colMap['status']) ? ($statusMap[trim($row[$colMap['status']] ?? '')] ?? 1) : 1;
 
             Db::table('user')->insert([
                 'phone'    => $phone,
@@ -200,6 +231,10 @@ class User extends Controller
             $success++;
         }
 
-        return json(['code' => 0, 'msg' => "导入完成，成功 {$success} 条" . ($skip > 0 ? "，跳过 {$skip} 条（手机号已存在）" : ''), 'data' => null]);
+        $msg = "导入完成，成功 {$success} 条";
+        if ($skip > 0) $msg .= "，跳过 {$skip} 条（手机号已存在）";
+        if ($errors) $msg .= "，" . implode('；', $errors);
+
+        return json(['code' => 0, 'msg' => $msg, 'data' => null]);
     }
 }
