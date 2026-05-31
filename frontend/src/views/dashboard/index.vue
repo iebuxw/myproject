@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row :gutter="20" style="margin-bottom:20px">
+    <el-row :gutter="20" style="margin-top:20px">
       <el-col :span="8">
         <el-card shadow="hover">
           <div slot="header">CPU 使用率</div>
@@ -48,12 +48,12 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-card v-if="serverError" style="margin-bottom:20px">
-      <p style="color:#909399;text-align:center">{{ serverError }}</p>
-    </el-card>
     <el-card>
       <h2>欢迎使用后台管理系统</h2>
       <p style="margin-top:10px;color:#666">管理员: {{ admin ? admin.username : '' }}</p>
+    </el-card>
+    <el-card v-if="serverError" style="margin-top:20px">
+      <p style="color:#909399;text-align:center">{{ serverError }}</p>
     </el-card>
   </div>
 </template>
