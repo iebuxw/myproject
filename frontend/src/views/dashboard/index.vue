@@ -1,5 +1,9 @@
 <template>
   <div>
+    <el-card>
+      <h2>欢迎使用后台管理系统</h2>
+      <p style="margin-top:10px;color:#666">管理员: {{ admin ? admin.username : '' }}</p>
+    </el-card>
     <el-row :gutter="20" style="margin-top:20px">
       <el-col :span="8">
         <el-card shadow="hover">
@@ -48,10 +52,6 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-card>
-      <h2>欢迎使用后台管理系统</h2>
-      <p style="margin-top:10px;color:#666">管理员: {{ admin ? admin.username : '' }}</p>
-    </el-card>
     <el-card v-if="serverError" style="margin-top:20px">
       <p style="color:#909399;text-align:center">{{ serverError }}</p>
     </el-card>
