@@ -77,16 +77,12 @@ class Server extends Controller
         return ['total' => $total, 'idle' => $idle + $iowait];
     }
 
-    private function getCpuFallback(): ?array
+    private function getCpuFallback(): array
     {
-        $loadAvg = $this->getLoadAvg();
-        if ($loadAvg === null) {
-            return null;
-        }
         return [
             'usage'    => null,
             'cores'    => $this->getCpuCores(),
-            'load_avg' => $loadAvg,
+            'load_avg' => $this->getLoadAvg(),
         ];
     }
 
