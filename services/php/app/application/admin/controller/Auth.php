@@ -35,16 +35,23 @@ class Auth extends Controller
         $ip   = request()->ip();
         $ua   = substr(request()->header('user-agent', ''), 0, 500);
 
-        if (empty($username) || empty($password) || empty($captchaKey) || empty($captchaCode)) {
+        if (empty($username) || empty($password)) {
             $this->logLogin($username, $ip, $ua, 0, '参数错误');
             return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
         }
 
-        $cachedCode = Cache::get('captcha:' . $captchaKey);
-        Cache::set('captcha:' . $captchaKey, '', 1);
-        if (!$cachedCode || strtolower($captchaCode) !== $cachedCode) {
-            $this->logLogin($username, $ip, $ua, 0, '验证码错误');
-            return json(['code' => 1002, 'msg' => '验证码错误', 'data' => null]);
+        $debug = getenv('APP_DEBUG') === '1';
+        if (!$debug) {
+            if (empty($captchaKey) || empty($captchaCode)) {
+                $this->logLogin($username, $ip, $ua, 0, '参数错误');
+                return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
+            }
+            $cachedCode = Cache::get('captcha:' . $captchaKey);
+            Cache::set('captcha:' . $captchaKey, '', 1);
+            if (!$cachedCode || strtolower($captchaCode) !== $cachedCode) {
+                $this->logLogin($username, $ip, $ua, 0, '验证码错误');
+                return json(['code' => 1002, 'msg' => '验证码错误', 'data' => null]);
+            }
         }
 
         $admin = Db::table('admin')->where('username', $username)->where('status', 1)->find();

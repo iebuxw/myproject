@@ -35,6 +35,7 @@ services:
       DB_PASS: ${MYSQL_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      APP_DEBUG: ${APP_DEBUG:-0}
     networks:
       - app-network
     restart: unless-stopped
