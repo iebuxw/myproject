@@ -25,6 +25,7 @@ services:
       - ./services/php/app/config:/var/www/html/config
       - ./services/php/app/route:/var/www/html/route
       - ./services/php/app/public:/var/www/html/public
+      - ./services/php/app/runtime/log:/var/www/html/runtime/log
       - /proc:/host_proc:ro
     depends_on:
       - mysql

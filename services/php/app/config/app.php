@@ -1,7 +1,7 @@
 <?php
 return [
     'app_host'       => '',
-    'app_debug'      => true,
+    'app_debug'      => getenv('APP_DEBUG') === '1',
     'app_trace'      => false,
     'default_module' => 'admin',
     'url_route_on'   => true,
