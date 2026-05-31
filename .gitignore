@@ -18,6 +18,7 @@ frontend/dist/
 
 # Docker
 mysql_data/
+.env
 
 # Claude
 .claude/settings.local.json
