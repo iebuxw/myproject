@@ -27,6 +27,8 @@ services:
       - ./services/php/app/public:/var/www/html/public
       - ./services/php/app/runtime/log:/var/www/html/runtime/log
       - /proc:/host_proc:ro
+    cap_add:
+      - SYS_PTRACE
     depends_on:
       - mysql
       - redis
