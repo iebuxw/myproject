@@ -10,6 +10,8 @@ services:
     depends_on:
       - php
       - go
+    volumes:
+      - ./services/nginx/logs:/var/log/nginx
     networks:
       - app-network
     restart: unless-stopped
