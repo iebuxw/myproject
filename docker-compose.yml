@@ -12,6 +12,11 @@ services:
       - go
     volumes:
       - ./services/nginx/logs:/var/log/nginx
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
     restart: unless-stopped
@@ -43,6 +48,11 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       APP_DEBUG: ${APP_DEBUG:-0}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
     restart: unless-stopped
@@ -64,6 +74,11 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
       GO_PORT: ${GO_PORT}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
     restart: unless-stopped
@@ -86,6 +101,11 @@ services:
       - ./services/mysql/init:/docker-entrypoint-initdb.d:ro
       - ./services/mysql:/scripts:ro
     command: --skip-host-cache --skip-name-resolve
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
     restart: unless-stopped
@@ -105,6 +125,11 @@ services:
       - redis_data:/data
       - ./services/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
     restart: unless-stopped

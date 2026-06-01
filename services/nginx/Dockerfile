@@ -16,9 +16,19 @@ RUN npm run build
 # 阶段2: 最终 Nginx 镜像
 FROM nginx:1.24-alpine
 
+RUN apk add --no-cache busybox-suid
+
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 # Nginx 配置
 COPY services/nginx/conf/nginx.conf /etc/nginx/nginx.conf
 COPY services/nginx/conf/default.conf /etc/nginx/conf.d/default.conf
+# 日志轮转脚本
+COPY services/nginx/logrotate.sh /usr/local/bin/logrotate.sh
+RUN chmod +x /usr/local/bin/logrotate.sh
+
+# 每天 0 点轮转日志
+RUN echo "0 0 * * * /usr/local/bin/logrotate.sh" | crontab -
+
+CMD crond && nginx -g 'daemon off;'
 
 EXPOSE 80

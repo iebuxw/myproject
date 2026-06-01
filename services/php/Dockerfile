@@ -9,6 +9,7 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
         libpng-dev \
         unzip \
         git \
+        cron \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql zip gd \
     && pecl install redis-5.3.7 \
@@ -25,11 +26,24 @@ RUN composer install --no-dev --optimize-autoloader \
     && mkdir -p runtime \
     && chown -R www-data:www-data runtime
 
+# 日志清理脚本
+COPY services/php/cleanup-logs.sh /usr/local/bin/cleanup-logs.sh
+RUN chmod +x /usr/local/bin/cleanup-logs.sh
+
+# 每天 1 点清理 30 天前的日志
+RUN echo "0 1 * * * /usr/local/bin/cleanup-logs.sh" | crontab -
+
 # PHP 配置
 COPY services/php/conf/php.ini /usr/local/etc/php/conf.d/custom.ini
 # PHP-FPM 配置
 COPY services/php-fpm/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY services/php-fpm/conf/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY services/php-fpm/conf/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+
+# 同时运行 cron 和 php-fpm
+COPY services/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 EXPOSE 9000
