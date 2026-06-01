@@ -5,6 +5,8 @@
 if [ "${APP_DEBUG:-0}" = "1" ]; then
     sed -i 's/opcache.validate_timestamps=0/opcache.validate_timestamps=1/' \
         /usr/local/etc/php/conf.d/custom.ini
+    sed -i 's/opcache.enable_file_override=1/opcache.enable_file_override=0/' \
+        /usr/local/etc/php/conf.d/custom.ini
 fi
 
 cron
