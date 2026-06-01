@@ -8,5 +8,5 @@ return [
     'hostport' => getenv('DB_PORT') ?: '3306',
     'charset'  => 'utf8mb4',
     'prefix'   => '',
-    'debug'    => true,
+    'debug'    => getenv('APP_DEBUG') === '1',
 ];
