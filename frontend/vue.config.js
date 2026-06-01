@@ -1,6 +1,23 @@
+const TerserPlugin = require('terser-webpack-plugin')
+
 module.exports = {
   publicPath: '/',
   outputDir: 'dist',
+  productionSourceMap: false,
+  configureWebpack: {
+    optimization: {
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: true,
+              drop_debugger: true
+            }
+          }
+        })
+      ]
+    }
+  },
   devServer: {
     port: 8081,
     proxy: {
