@@ -1,5 +1,8 @@
 FROM php:7.4-fpm
 
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone
+
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \

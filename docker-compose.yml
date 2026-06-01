@@ -92,6 +92,7 @@ services:
     ports:
       - "3306:3306"
     environment:
+      TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -100,7 +101,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./services/mysql/init:/docker-entrypoint-initdb.d:ro
       - ./services/mysql:/scripts:ro
-    command: --skip-host-cache --skip-name-resolve
+    command: --skip-host-cache --skip-name-resolve --default-time-zone=+08:00
     logging:
       driver: json-file
       options:
@@ -117,7 +118,9 @@ services:
 
   # ==================== Redis ====================
   redis:
-    image: redis:3-alpine
+    build:
+      context: .
+      dockerfile: services/redis/Dockerfile
     container_name: redis
     ports:
       - "6379:6379"

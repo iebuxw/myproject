@@ -16,7 +16,10 @@ RUN npm run build
 # 阶段2: 最终 Nginx 镜像
 FROM nginx:1.24-alpine
 
-RUN apk add --no-cache busybox-suid
+RUN apk add --no-cache busybox-suid tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && apk del tzdata
 
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 # Nginx 配置
