@@ -122,8 +122,10 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 // @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	tokenStr, _ := c.Get("token")
-	// 加入黑名单，有效期同 token
 	ctx := context.Background()
-	h.RDB.Set(ctx, "blacklist:"+tokenStr.(string), "1", 2*time.Hour)
+	if err := h.RDB.Set(ctx, "blacklist:"+tokenStr.(string), "1", 2*time.Hour).Err(); err != nil {
+		model.Error(c, 500, "登出失败")
+		return
+	}
 	model.Success(c, nil)
 }

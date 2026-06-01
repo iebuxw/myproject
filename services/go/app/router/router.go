@@ -13,18 +13,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func Setup(db *gorm.DB, rdb *redis.Client, secret string) *gin.Engine {
+func Setup(db *gorm.DB, rdb *redis.Client, secret string, debug bool) *gin.Engine {
 	r := gin.Default()
 
-	// Swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Swagger — 仅开发环境
+	if debug {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
-	// CORS
+	// CORS — Nginx 同域代理下不需要跨域，仅保留安全头 + OPTIONS 兜底
 	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
 		if c.Request.Method == "OPTIONS" {
+			c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization")
 			c.AbortWithStatus(204)
 			return
 		}
@@ -42,7 +45,6 @@ func Setup(db *gorm.DB, rdb *redis.Client, secret string) *gin.Engine {
 			auth.POST("/refresh", authHandler.Refresh)
 		}
 
-		// 需要 JWT 认证
 		authorized := api.Group("")
 		authorized.Use(middleware.JWTAuth(secret, rdb))
 		{

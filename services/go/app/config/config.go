@@ -3,16 +3,17 @@ package config
 import "os"
 
 type Config struct {
-	DBHost   string
-	DBPort   string
-	DBName   string
-	DBUser   string
-	DBPass   string
+	DBHost    string
+	DBPort    string
+	DBName    string
+	DBUser    string
+	DBPass    string
 	RedisHost string
 	RedisPort string
 	RedisPass string
 	JWTSecret string
 	GoPort    string
+	Debug     bool
 }
 
 func Load() *Config {
@@ -27,6 +28,7 @@ func Load() *Config {
 		RedisPass: getEnv("REDIS_PASSWORD", ""),
 		JWTSecret: getEnv("JWT_SECRET", "myproject-jwt-secret"),
 		GoPort:    getEnv("GO_PORT", "8080"),
+		Debug:     getEnv("APP_DEBUG", "0") == "1",
 	}
 }
 

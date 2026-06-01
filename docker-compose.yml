@@ -74,6 +74,7 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
       GO_PORT: ${GO_PORT}
+      APP_DEBUG: ${APP_DEBUG:-0}
     logging:
       driver: json-file
       options:
