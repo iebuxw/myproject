@@ -26,8 +26,8 @@ COPY services/nginx/conf/default.conf /etc/nginx/conf.d/default.conf
 COPY services/nginx/logrotate.sh /usr/local/bin/logrotate.sh
 RUN chmod +x /usr/local/bin/logrotate.sh
 
-# 每天 0 点轮转日志
-RUN echo "0 0 * * * /usr/local/bin/logrotate.sh" | crontab -
+# 定时任务
+COPY services/nginx/crontab /var/spool/cron/crontabs/root
 
 CMD crond && nginx -g 'daemon off;'
 

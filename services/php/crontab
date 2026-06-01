@@ -1,0 +1,2 @@
+# 每天 1 点清理 30 天前的 ThinkPHP 日志
+0 1 * * * /usr/local/bin/cleanup-logs.sh

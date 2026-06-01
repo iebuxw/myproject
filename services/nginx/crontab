@@ -1,0 +1,2 @@
+# 每天 0 点轮转 Nginx 日志（超过 10MB 切割，保留 7 个归档）
+0 0 * * * /usr/local/bin/logrotate.sh

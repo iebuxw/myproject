@@ -30,8 +30,10 @@ RUN composer install --no-dev --optimize-autoloader \
 COPY services/php/cleanup-logs.sh /usr/local/bin/cleanup-logs.sh
 RUN chmod +x /usr/local/bin/cleanup-logs.sh
 
-# 每天 1 点清理 30 天前的日志
-RUN echo "0 1 * * * /usr/local/bin/cleanup-logs.sh" | crontab -
+# 定时任务
+COPY services/php/crontab /var/spool/cron/crontabs/www-data
+RUN chown www-data:crontab /var/spool/cron/crontabs/www-data \
+    && chmod 600 /var/spool/cron/crontabs/www-data
 
 # PHP 配置
 COPY services/php/conf/php.ini /usr/local/etc/php/conf.d/custom.ini

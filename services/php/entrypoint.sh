@@ -1,3 +1,3 @@
 #!/bin/bash
 cron
-exec "$@"
+exec php-fpm
