@@ -14,7 +14,7 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
         git \
         cron \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql zip gd \
+    && docker-php-ext-install pdo_mysql zip gd opcache \
     && pecl install redis-5.3.7 \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*

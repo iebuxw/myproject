@@ -8,6 +8,8 @@
 // [ 应用入口文件 ]
 namespace think;
 
+date_default_timezone_set('PRC');
+
 // 加载基础文件
 require __DIR__ . '/../thinkphp/base.php';
 
