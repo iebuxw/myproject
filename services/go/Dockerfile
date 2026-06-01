@@ -5,10 +5,10 @@ RUN sed -i 's/dl-cdn-alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 WORKDIR /build
 
-COPY app/go.mod app/go.sum ./
+COPY services/go/app/go.mod services/go/app/go.sum ./
 RUN GOPROXY=https://goproxy.cn,direct go mod download
 
-COPY app/ .
+COPY services/go/app/ .
 RUN GOPROXY=https://goproxy.cn,direct go install github.com/swaggo/swag/cmd/swag@v1.16.3 \
     && swag init -g main.go -o ./docs
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o server main.go
