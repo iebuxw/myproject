@@ -1,6 +1,7 @@
 <?php
 return [
     'app_host'          => '',
+    'default_filter'    => 'trim',
     'app_debug'         => getenv('APP_DEBUG') === '1',
     'app_trace'         => false,
     'default_timezone'  => 'PRC',
