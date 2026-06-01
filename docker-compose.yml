@@ -10,6 +10,11 @@ services:
     depends_on:
       - php
       - go
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.tcp_max_syn_backlog: 65535
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.ip_local_port_range: "1024 65535"
     ulimits:
       nofile:
         soft: 65536
@@ -31,6 +36,14 @@ services:
       context: .
       dockerfile: services/php/Dockerfile
     container_name: php
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.tcp_max_syn_backlog: 65535
+      net.ipv4.tcp_tw_reuse: 1
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     volumes:
       - ./services/php/app/application:/var/www/html/application
       - ./services/php/app/config:/var/www/html/config
@@ -65,6 +78,15 @@ services:
   go:
     build: ./services/go
     container_name: go
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.tcp_max_syn_backlog: 65535
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.ip_local_port_range: "1024 65535"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     depends_on:
       - mysql
       - redis
@@ -94,6 +116,12 @@ services:
       context: .
       dockerfile: services/mysql/Dockerfile
     container_name: mysql
+    sysctls:
+      net.core.somaxconn: 65535
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     ports:
       - "3306:3306"
     environment:
@@ -127,6 +155,13 @@ services:
       context: .
       dockerfile: services/redis/Dockerfile
     container_name: redis
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.tcp_max_syn_backlog: 65535
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     ports:
       - "6379:6379"
     volumes:
