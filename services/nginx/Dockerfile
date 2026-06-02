@@ -22,6 +22,9 @@ RUN apk add --no-cache busybox-suid tzdata \
     && apk del tzdata
 
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
+# SSL 证书
+COPY services/nginx/certs/server.crt /etc/nginx/certs/server.crt
+COPY services/nginx/certs/server.key /etc/nginx/certs/server.key
 # Nginx 配置
 COPY services/nginx/conf/nginx.conf /etc/nginx/nginx.conf
 COPY services/nginx/conf/default.conf /etc/nginx/conf.d/default.conf
@@ -34,4 +37,4 @@ COPY services/nginx/crontab /var/spool/cron/crontabs/root
 
 CMD crond && nginx -g 'daemon off;'
 
-EXPOSE 80
+EXPOSE 80 443
