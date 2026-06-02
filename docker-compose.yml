@@ -24,6 +24,7 @@ services:
         hard: 65536
     volumes:
       - ./services/nginx/logs:/var/log/nginx
+      - upload_data:/uploads:ro
     logging:
       driver: json-file
       options:
@@ -58,6 +59,7 @@ services:
       - ./services/php/app/route:/var/www/html/route
       - ./services/php/app/public:/var/www/html/public
       - ./services/php/app/runtime/log:/var/www/html/runtime/log
+      - upload_data:/var/www/html/uploads
       - /proc:/host_proc:ro
     cap_add:
       - SYS_PTRACE
@@ -209,6 +211,7 @@ services:
 volumes:
   mysql_data:
   redis_data:
+  upload_data:
 
 networks:
   app-network:

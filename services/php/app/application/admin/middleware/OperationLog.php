@@ -14,6 +14,7 @@ class OperationLog
         'user'          => '用户管理',
         'login_log'     => '登录日志',
         'operation_log' => '操作日志',
+        'profile'       => '个人中心',
     ];
 
     // HTTP 方法 → 动作映射

@@ -9,11 +9,13 @@
     <el-container>
       <el-header style="height:50px;background:#fff;border-bottom:1px solid #e6e6e6;display:flex;align-items:center;justify-content:flex-end;padding:0 20px">
         <el-dropdown @command="handleCommand">
-          <span style="cursor:pointer">
+          <span style="cursor:pointer;display:flex;align-items:center;gap:8px">
+            <el-avatar :size="28" :src="admin && admin.avatar ? admin.avatar : ''" icon="el-icon-user-solid" />
             {{ admin ? admin.username : '' }} <i class="el-icon-arrow-down"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+            <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+            <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
@@ -41,7 +43,9 @@ export default {
   },
   methods: {
     handleCommand(cmd) {
-      if (cmd === 'logout') {
+      if (cmd === 'profile') {
+        this.$router.push('/profile')
+      } else if (cmd === 'logout') {
         this.$store.dispatch('logout').then(() => {
           this.$router.push('/login')
         })

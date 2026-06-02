@@ -45,4 +45,10 @@ Route::group('admin', function () {
 
     // Server
     Route::get('server/info', 'admin/Server/info');
+
+    // Profile（个人中心，不检查 RBAC 权限：管理员只能操作自己的数据）
+    Route::get('profile', 'admin/Profile/read');
+    Route::post('profile/avatar', 'admin/Profile/avatar');
+    Route::put('profile/password', 'admin/Profile/password');
+    Route::put('profile', 'admin/Profile/update');
 })->middleware(['app\admin\middleware\Auth', 'app\admin\middleware\OperationLog']);

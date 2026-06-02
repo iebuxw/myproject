@@ -57,6 +57,12 @@ const routes = [
         name: 'OperationLog',
         component: () => import('@/views/log/operation'),
         meta: { title: '操作日志' }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/index'),
+        meta: { title: '个人中心' }
       }
     ]
   }
