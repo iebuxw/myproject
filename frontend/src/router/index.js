@@ -47,6 +47,12 @@ const routes = [
         meta: { title: '菜单管理' }
       },
       {
+        path: 'system/dict',
+        name: 'Dict',
+        component: () => import('@/views/system/dict'),
+        meta: { title: '字典管理' }
+      },
+      {
         path: 'log/login',
         name: 'LoginLog',
         component: () => import('@/views/log/login'),
