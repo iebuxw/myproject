@@ -1,0 +1,24 @@
+CREATE TABLE IF NOT EXISTS `dict_type` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `code` VARCHAR(50) NOT NULL COMMENT '类型编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '类型名称',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0停用',
+    `remark` VARCHAR(255) DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='字典类型';
+
+CREATE TABLE IF NOT EXISTS `dict_data` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `type_id` INT UNSIGNED NOT NULL COMMENT '字典类型ID',
+    `label` VARCHAR(100) NOT NULL COMMENT '显示文本',
+    `value` VARCHAR(100) NOT NULL COMMENT '存储值',
+    `sort` INT DEFAULT 0 COMMENT '排序号',
+    `status` TINYINT DEFAULT 1 COMMENT '1启用 0停用',
+    `remark` VARCHAR(255) DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_type_value` (`type_id`, `value`),
+    INDEX `idx_type_id` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='字典项';
