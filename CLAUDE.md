@@ -75,6 +75,9 @@ MySQL 5.7，表结构和数据由 `services/mysql/migrations/` 迁移文件管�
 - **menu** — 菜单/权限（type: 1=目录 2=菜单 3=按钮）
 - **admin_role** — 管理员↔角色多对多
 - **role_menu** — 角色↔菜单多对多
+- **dict_type / dict_data** — 字典类型 + 字典项
+- **attachment** — 附件文件元数据（原始名、存储路径、大小、MIME、上传者）
+- **login_log / operation_log** — 日志
 
 两个用户表是独立的：admin 是后台管理员，user 是 to-C 的 APP 用户，两者不交叉。
 
@@ -102,7 +105,17 @@ PHP 和 Go 都返回相同结构：
 {"code": 0, "msg": "success", "data": {...}}
 ```
 
-错误码约定：`0`=成功，`1001`=未登录/token无效，`1002`=参数错误，`1003`=用户名/密码错误，`1004`=管理员/用户不存在，`500`=服务端错误。
+错误码约定：`0`=成功，`1001`=未登录/token无效，`1002`=参数错误，`1003`=用户名/密码错误，`1004`=管理员/用户不存在，`1005`=已存在/重复，`500`=服务端错误。
+
+### 文件上传
+
+统一通过 `Attachment` 控制器（`POST /admin/attachment/upload`），不入库的上传（如头像）用 `Profile::avatar()`。
+
+- **存储**：PHP 容器 `/var/www/html/uploads/{子目录}/`，Docker 卷 `upload_data` 持久化，Nginx 通过 `location /uploads/` 静态服务（30d 缓存，禁 PHP 执行）
+- **子目录约定**：`avatars`（头像）、`attachments`（通用附件），新场景在 `entrypoint.sh` 加 `mkdir -p`
+- **安全**：MIME 白名单校验（`finfo` 读取真实类型，非扩展名），上限 10MB（nginx `client_max_body_size` + php `upload_max_filesize` 对齐）
+- **删除**：同时删 DB 记录和物理文件
+- **Go 端不做上传**，只接收 URL 字符串
 
 ### Go 项目结构
 
@@ -126,7 +139,7 @@ Go 模块名为 `go-api`，Go 1.18，依赖：gin, gorm (MySQL), go-redis/v8, go
 ```
 services/php/app/
 ├── application/admin/
-│   ├── controller/       # Auth, Admin, Role, Menu（CRUD 控制器）
+│   ├── controller/       # Auth, Admin, Role, Menu, User, Attachment, DictType/DictData, LoginLog/OperationLog, Profile, Server
 │   └── middleware/Auth.php  # 登录检查 + RBAC 权限查询
 ├── config/               # database, session, cache, app
 ├── route/route.php       # 所有路由定义（admin/* 前缀）
@@ -148,10 +161,15 @@ frontend/src/
 └── views/
     ├── login/index.vue   # 登录页
     ├── dashboard/index.vue
+    ├── user/index.vue    # 用户管理（分页）
+    ├── profile/index.vue # 个人中心（头像上传）
+    ├── log/              # 登录日志、操作日志
     └── system/
         ├── admin.vue     # 管理员 CRUD
         ├── role.vue      # 角色 CRUD + el-tree 菜单分配
-        └── menu.vue      # 菜单树形表格 CRUD
+        ├── menu.vue      # 菜单树形表格 CRUD
+        ├── dict.vue      # 字典类型 + 字典数据
+        └── attachment.vue # 文件管理（上传/列表/删除）
 ```
 
 Vue2 + Element UI + Vue Router + Vuex。前端通过 Nginx 统一入口访问，无跨域问题。PHP 返回的菜单权限树驱动侧边栏渲染。
