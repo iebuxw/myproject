@@ -35,6 +35,19 @@ Route::group('admin', function () {
     Route::put('menu/edit', 'admin/Menu/update');
     Route::delete('menu/delete', 'admin/Menu/delete');
 
+    // DictType
+    Route::get('dict_type/list', 'admin/DictType/index');
+    Route::post('dict_type/add', 'admin/DictType/save');
+    Route::put('dict_type/edit', 'admin/DictType/update');
+    Route::delete('dict_type/delete', 'admin/DictType/delete');
+
+    // DictData
+    Route::get('dict_data/list', 'admin/DictData/index');
+    Route::get('dict_data/items', 'admin/DictData/items');
+    Route::post('dict_data/add', 'admin/DictData/save');
+    Route::put('dict_data/edit', 'admin/DictData/update');
+    Route::delete('dict_data/delete', 'admin/DictData/delete');
+
     // LoginLog
     Route::get('login_log/list', 'admin/LoginLog/index');
     Route::delete('login_log/delete', 'admin/LoginLog/delete');
