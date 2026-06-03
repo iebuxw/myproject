@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 确保 uploads 目录存在且 www-data 可写
+mkdir -p /var/www/html/uploads/avatars
+chown -R www-data:www-data /var/www/html/uploads
+
 # 开发环境(APP_DEBUG=1): 开启文件变更检测，改代码即时生效
 # 生产环境(APP_DEBUG=0): 关闭检测，最大性能，部署后需 restart
 if [ "${APP_DEBUG:-0}" = "1" ]; then
