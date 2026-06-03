@@ -12,7 +12,9 @@ class User extends Controller
     // GET /admin/user/list
     public function index()
     {
-        $phone   = input('get.phone', '');
+        $page     = input('get.page', 1);
+        $limit    = input('get.limit', 10);
+        $phone    = input('get.phone', '');
         $nickname = input('get.nickname', '');
 
         $query = Db::table('user')->field('id,phone,nickname,email,gender,avatar,status,created_at,updated_at');
@@ -22,8 +24,9 @@ class User extends Controller
         if (!empty($nickname)) {
             $query->where('nickname', 'like', "%$nickname%");
         }
-        $list = $query->order('id', 'desc')->select();
-        return json(['code' => 0, 'msg' => 'success', 'data' => ['list' => $list]]);
+        $total = $query->count();
+        $list  = $query->order('id', 'desc')->page((int)$page, (int)$limit)->select();
+        return json(['code' => 0, 'msg' => 'success', 'data' => ['list' => $list, 'total' => $total]]);
     }
 
     // POST /admin/user/add

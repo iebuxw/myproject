@@ -44,6 +44,16 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-pagination
+        style="margin-top:15px;text-align:right"
+        background
+        layout="total, prev, pager, next"
+        :current-page="page"
+        :page-size="limit"
+        :total="total"
+        @current-change="handlePageChange"
+      />
     </el-card>
 
     <el-dialog title="导入用户" :visible.sync="importVisible" width="450px" :close-on-click-modal="false">
@@ -110,6 +120,9 @@ export default {
   data() {
     return {
       list: [],
+      page: 1,
+      limit: 10,
+      total: 0,
       searchForm: { phone: '', nickname: '' },
       dialogVisible: false,
       dialogTitle: '',
@@ -129,26 +142,38 @@ export default {
     }
   },
   created() {
-    this.fetchList()
+    this.fetchList({ page: this.page, limit: this.limit })
   },
   methods: {
     async fetchList(params) {
       try {
         const res = await request.get('/user/list', { params })
-        if (res.code === 0) this.list = res.data.list
+        if (res.code === 0) {
+          this.list = res.data.list
+          this.total = res.data.total
+        }
       } catch (e) {
         // 1001 已由拦截器处理
       }
     },
     handleSearch() {
-      const params = {}
+      this.page = 1
+      const params = { page: this.page, limit: this.limit }
       if (this.searchForm.phone) params.phone = this.searchForm.phone
       if (this.searchForm.nickname) params.nickname = this.searchForm.nickname
       this.fetchList(params)
     },
     handleReset() {
       this.searchForm = { phone: '', nickname: '' }
-      this.fetchList()
+      this.page = 1
+      this.fetchList({ page: 1, limit: this.limit })
+    },
+    handlePageChange(page) {
+      this.page = page
+      const params = { page, limit: this.limit }
+      if (this.searchForm.phone) params.phone = this.searchForm.phone
+      if (this.searchForm.nickname) params.nickname = this.searchForm.nickname
+      this.fetchList(params)
     },
     handleExport() {
       const params = new URLSearchParams()
@@ -178,7 +203,7 @@ export default {
         if (res.code === 0) {
           this.$message.success(res.msg)
           this.importVisible = false
-          this.fetchList()
+          this.fetchList({ page: this.page, limit: this.limit })
         } else {
           this.$message.error(res.msg)
         }
@@ -211,7 +236,7 @@ export default {
           const res = await request.delete('/user/delete', { data: { id: row.id } })
           if (res.code === 0) {
             this.$message.success('删除成功')
-            this.fetchList()
+            this.fetchList({ page: this.page, limit: this.limit })
           } else {
             this.$message.error(res.msg)
           }
@@ -240,7 +265,7 @@ export default {
         if (res.code === 0) {
           this.$message.success(id ? '编辑成功' : '新增成功')
           this.dialogVisible = false
-          this.fetchList()
+          this.fetchList({ page: this.page, limit: this.limit })
         } else {
           this.$message.error(res.msg)
         }
