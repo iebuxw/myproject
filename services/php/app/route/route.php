@@ -6,6 +6,7 @@ Route::get('admin/auth/captcha', 'admin/Auth/captcha');
 Route::post('admin/auth/login', 'admin/Auth/login');
 Route::post('admin/auth/logout', 'admin/Auth/logout');
 Route::get('admin/auth/info', 'admin/Auth/info');
+Route::get('admin/system_config/read', 'admin/SystemConfig/read');
 
 // ---------- 需要认证 + 操作日志的路由 ----------
 Route::group('admin', function () {
@@ -60,6 +61,9 @@ Route::group('admin', function () {
     // OperationLog
     Route::get('operation_log/list', 'admin/OperationLog/index');
     Route::delete('operation_log/delete', 'admin/OperationLog/delete');
+
+    // SystemConfig
+    Route::put('system_config/update', 'admin/SystemConfig/update');
 
     // Server
     Route::get('server/info', 'admin/Server/info');

@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-card class="login-card">
-      <h2 style="text-align:center;margin-bottom:20px">后台管理系统</h2>
+      <h2 style="text-align:center;margin-bottom:20px">{{ siteName }}</h2>
       <el-form ref="form" :model="form" :rules="rules">
         <el-form-item prop="username">
           <el-input v-model="form.username" placeholder="用户名" prefix-icon="el-icon-user" />
@@ -31,6 +31,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import request from '@/api'
 
 export default {
   name: 'Login',
@@ -42,7 +43,8 @@ export default {
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
         captcha_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
       },
-      loading: false
+      loading: false,
+      siteName: '后台管理系统'
     }
   },
   computed: {
@@ -50,10 +52,19 @@ export default {
   },
   mounted() {
     this.refreshCaptcha()
+    this.fetchSiteName()
   },
   methods: {
     refreshCaptcha() {
       this.$store.dispatch('getCaptcha')
+    },
+    async fetchSiteName() {
+      try {
+        const res = await request.get('/system_config/read')
+        if (res.code === 0 && res.data.site_name) {
+          this.siteName = res.data.site_name
+        }
+      } catch (e) { /* ignore */ }
     },
     handleLogin() {
       this.$refs.form.validate(valid => {

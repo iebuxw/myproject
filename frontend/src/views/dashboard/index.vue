@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card>
-      <h2>欢迎使用后台管理系统</h2>
+      <h2>欢迎使用{{ siteConfig.site_name || '后台管理系统' }}</h2>
       <p style="margin-top:10px;color:#666">管理员: {{ admin ? admin.username : '' }}</p>
     </el-card>
     <el-row :gutter="20" style="margin-top:20px">
@@ -70,7 +70,7 @@ export default {
       serverError: ''
     }
   },
-  computed: { ...mapState(['admin']) },
+  computed: { ...mapState(['admin', 'siteConfig']) },
   created() {
     this.fetchServerInfo()
   },

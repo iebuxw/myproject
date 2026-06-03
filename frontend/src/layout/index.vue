@@ -2,7 +2,8 @@
   <el-container style="height:100%">
     <el-aside width="220px" style="background:#304156">
       <div class="logo">
-        <span>后台管理</span>
+        <img v-if="siteConfig.logo_url" :src="siteConfig.logo_url" class="logo-img" />
+        <span>{{ siteConfig.site_name || '后台管理' }}</span>
       </div>
       <sidebar :menus="menus" />
     </el-aside>
@@ -34,12 +35,13 @@ export default {
   name: 'Layout',
   components: { Sidebar },
   computed: {
-    ...mapState(['admin', 'menus'])
+    ...mapState(['admin', 'menus', 'siteConfig'])
   },
   created() {
     if (!this.admin) {
       this.$store.dispatch('getInfo')
     }
+    this.$store.dispatch('getSiteConfig')
   },
   methods: {
     handleCommand(cmd) {
@@ -61,9 +63,17 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   color: #fff;
   font-size: 18px;
   font-weight: bold;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.logo-img {
+  height: 28px;
+  width: 28px;
+  object-fit: contain;
 }
 </style>

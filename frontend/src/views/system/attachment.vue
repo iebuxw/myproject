@@ -27,6 +27,18 @@
 
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column label="预览" width="80" align="center">
+          <template slot-scope="{row}">
+            <el-image
+              v-if="isImage(row.ext)"
+              :src="row.file_path"
+              :preview-src-list="[row.file_path]"
+              fit="cover"
+              style="width:50px;height:50px;border-radius:4px"
+            />
+            <i v-else :class="fileIcon(row.ext)" style="font-size:28px;color:#909399" />
+          </template>
+        </el-table-column>
         <el-table-column prop="original_name" label="文件名" show-overflow-tooltip />
         <el-table-column label="大小" width="110">
           <template slot-scope="{row}">
@@ -86,6 +98,18 @@ export default {
       } catch (e) {
         // 1001 已由拦截器处理
       }
+    },
+    isImage(ext) {
+      return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes((ext || '').toLowerCase())
+    },
+    fileIcon(ext) {
+      const e = (ext || '').toLowerCase()
+      if (['doc', 'docx'].includes(e)) return 'el-icon-document'
+      if (['xls', 'xlsx'].includes(e)) return 'el-icon-s-grid'
+      if (['ppt', 'pptx'].includes(e)) return 'el-icon-data-board'
+      if (e === 'pdf') return 'el-icon-reading'
+      if (['zip', 'rar', '7z'].includes(e)) return 'el-icon-suitcase'
+      return 'el-icon-folder'
     },
     formatSize(bytes) {
       if (!bytes) return '0 B'

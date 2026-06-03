@@ -12,7 +12,9 @@ export default new Vuex.Store({
     roles: [],
     menus: [],
     captchaKey: '',
-    captchaImage: ''
+    captchaImage: '',
+    siteConfig: { site_name: '', logo: '', logo_url: '' },
+    siteConfigLoaded: false
   },
   mutations: {
     SET_TOKEN(state, token) {
@@ -32,11 +34,17 @@ export default new Vuex.Store({
       state.captchaKey = key
       state.captchaImage = image
     },
+    SET_SITE_CONFIG(state, config) {
+      state.siteConfig = config
+      state.siteConfigLoaded = true
+    },
     CLEAR(state) {
       state.token = ''
       state.admin = null
       state.roles = []
       state.menus = []
+      state.siteConfig = { site_name: '', logo: '', logo_url: '' }
+      state.siteConfigLoaded = false
       removeToken()
     }
   },
@@ -82,6 +90,16 @@ export default new Vuex.Store({
     async logout({ commit }) {
       await request.post('/auth/logout')
       commit('CLEAR')
+    },
+
+    // 获取站点配置
+    async getSiteConfig({ commit, state }) {
+      if (state.siteConfigLoaded) return state.siteConfig
+      const res = await request.get('/system_config/read')
+      if (res.code === 0) {
+        commit('SET_SITE_CONFIG', res.data)
+      }
+      return res
     }
   }
 })

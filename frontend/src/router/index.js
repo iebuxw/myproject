@@ -59,6 +59,12 @@ const routes = [
         meta: { title: '文件管理' }
       },
       {
+        path: 'system/config',
+        name: 'SystemConfig',
+        component: () => import('@/views/system/config'),
+        meta: { title: '系统配置' }
+      },
+      {
         path: 'log/login',
         name: 'LoginLog',
         component: () => import('@/views/log/login'),
