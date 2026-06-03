@@ -41,9 +41,9 @@ RUN chown www-data:crontab /var/spool/cron/crontabs/www-data \
 # PHP 配置
 COPY services/php/conf/php.ini /usr/local/etc/php/conf.d/custom.ini
 # PHP-FPM 配置
-COPY services/php-fpm/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
-COPY services/php-fpm/conf/www.conf /usr/local/etc/php-fpm.d/www.conf
-COPY services/php-fpm/conf/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+COPY services/php/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY services/php/conf/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY services/php/conf/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # 同时运行 cron 和 php-fpm
 COPY services/php/entrypoint.sh /usr/local/bin/entrypoint.sh
