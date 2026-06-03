@@ -48,6 +48,11 @@ Route::group('admin', function () {
     Route::put('dict_data/edit', 'admin/DictData/update');
     Route::delete('dict_data/delete', 'admin/DictData/delete');
 
+    // Attachment
+    Route::get('attachment/list', 'admin/Attachment/index');
+    Route::post('attachment/upload', 'admin/Attachment/upload');
+    Route::delete('attachment/delete', 'admin/Attachment/delete');
+
     // LoginLog
     Route::get('login_log/list', 'admin/LoginLog/index');
     Route::delete('login_log/delete', 'admin/LoginLog/delete');

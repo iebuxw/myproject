@@ -2,6 +2,7 @@
 
 # 确保 uploads 目录存在且 www-data 可写
 mkdir -p /var/www/html/uploads/avatars
+mkdir -p /var/www/html/uploads/attachments
 chown -R www-data:www-data /var/www/html/uploads
 
 # 开发环境(APP_DEBUG=1): 开启文件变更检测，改代码即时生效

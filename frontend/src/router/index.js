@@ -53,6 +53,12 @@ const routes = [
         meta: { title: '字典管理' }
       },
       {
+        path: 'system/attachment',
+        name: 'Attachment',
+        component: () => import('@/views/system/attachment'),
+        meta: { title: '文件管理' }
+      },
+      {
         path: 'log/login',
         name: 'LoginLog',
         component: () => import('@/views/log/login'),
