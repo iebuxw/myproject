@@ -58,7 +58,7 @@ services:
       - ./services/php/app/config:/var/www/html/config
       - ./services/php/app/route:/var/www/html/route
       - ./services/php/app/public:/var/www/html/public
-      - ./services/php/app/runtime/log:/var/www/html/runtime/log
+      - ./services/php/app/runtime:/var/www/html/runtime
       - upload_data:/var/www/html/uploads
       - /proc:/host_proc:ro
     cap_add:
