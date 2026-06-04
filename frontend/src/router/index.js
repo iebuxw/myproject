@@ -71,6 +71,18 @@ const routes = [
         meta: { title: '通知公告' }
       },
       {
+        path: 'system/cron-task',
+        name: 'CronTask',
+        component: () => import('@/views/system/cron-task'),
+        meta: { title: '定时任务' }
+      },
+      {
+        path: 'system/cron-task-log',
+        name: 'CronTaskLog',
+        component: () => import('@/views/system/cron-task-log'),
+        meta: { title: '执行日志' }
+      },
+      {
         path: 'log/login',
         name: 'LoginLog',
         component: () => import('@/views/log/login'),
