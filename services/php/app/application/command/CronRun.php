@@ -4,7 +4,7 @@ namespace app\command;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\console\InputArgument;
+use think\console\input\Argument;
 use think\Db;
 use think\facade\Log;
 
@@ -13,7 +13,7 @@ class CronRun extends Command
     protected function configure()
     {
         $this->setName('cron:run')
-            ->addArgument('command_name', InputArgument::REQUIRED, '要执行的命令名')
+            ->addArgument('command_name', Argument::REQUIRED, '要执行的命令名')
             ->setDescription('定时任务包装器：执行指定命令并记录日志');
     }
 
