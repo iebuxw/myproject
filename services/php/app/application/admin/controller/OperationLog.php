@@ -9,6 +9,7 @@ class OperationLog extends Controller
     // GET /admin/operation_log/list
     public function index()
     {
+        $request  = request();
         $page    = input('get.page', 1);
         $limit   = input('get.limit', 10);
         $module  = input('get.module', '');
@@ -17,6 +18,12 @@ class OperationLog extends Controller
         $endAt   = input('get.end_at', '');
 
         $query = Db::table('operation_log');
+
+        // 非超级管理员只能看自己的操作日志
+        if ($request->adminId != 1) {
+            $query->where('username', $request->admin['username']);
+        }
+
         if (!empty($module)) {
             $query->where('module', $module);
         }

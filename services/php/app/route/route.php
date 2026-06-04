@@ -54,6 +54,13 @@ Route::group('admin', function () {
     Route::post('attachment/upload', 'admin/Attachment/upload');
     Route::delete('attachment/delete', 'admin/Attachment/delete');
 
+    // Notice
+    Route::get('notice/list', 'admin/Notice/index');
+    Route::get('notice/published', 'admin/Notice/published');
+    Route::post('notice/add', 'admin/Notice/save');
+    Route::put('notice/edit', 'admin/Notice/update');
+    Route::delete('notice/delete', 'admin/Notice/delete');
+
     // LoginLog
     Route::get('login_log/list', 'admin/LoginLog/index');
     Route::delete('login_log/delete', 'admin/LoginLog/delete');

@@ -4,6 +4,27 @@
       <h2>欢迎使用{{ siteConfig.site_name || '后台管理系统' }}</h2>
       <p style="margin-top:10px;color:#666">管理员: {{ admin ? admin.username : '' }}</p>
     </el-card>
+    <el-card style="margin-top:20px">
+      <div slot="header">
+        <span>通知公告</span>
+        <router-link v-if="hasPerm('notice:list')" to="/system/notice" style="float:right;font-size:13px">管理公告</router-link>
+      </div>
+      <el-table v-if="notices.length" :data="notices" size="small" :show-header="false" style="width:100%">
+        <el-table-column width="80">
+          <template slot-scope="{row}">
+            <el-tag size="mini" type="warning">公告</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="{row}">
+            <span style="cursor:pointer;color:#409EFF" @click="showDetail(row)">{{ row.title }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="admin_name" width="120" />
+        <el-table-column prop="created_at" width="180" />
+      </el-table>
+      <p v-else style="color:#909399;text-align:center;padding:10px 0">暂无公告</p>
+    </el-card>
     <el-row :gutter="20" style="margin-top:20px">
       <el-col :span="8">
         <el-card shadow="hover">
@@ -55,26 +76,45 @@
     <el-card v-if="serverError" style="margin-top:20px">
       <p style="color:#909399;text-align:center">{{ serverError }}</p>
     </el-card>
+
+    <el-dialog :title="currentNotice.title" :visible.sync="detailVisible" width="600px">
+      <p style="color:#909399;font-size:13px;margin-bottom:12px">{{ currentNotice.admin_name }} · {{ currentNotice.created_at }}</p>
+      <div style="line-height:1.8;white-space:pre-wrap">{{ currentNotice.content }}</div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import request from '@/api'
 
 export default {
   name: 'Dashboard',
   data() {
     return {
+      notices: [],
       serverInfo: {},
-      serverError: ''
+      serverError: '',
+      detailVisible: false,
+      currentNotice: {}
     }
   },
-  computed: { ...mapState(['admin', 'siteConfig']) },
+  computed: { ...mapState(['admin', 'siteConfig']), ...mapGetters(['hasPerm']) },
   created() {
+    this.fetchNotices()
     this.fetchServerInfo()
   },
   methods: {
+    async fetchNotices() {
+      try {
+        const res = await request.get('/notice/published')
+        if (res.code === 0) this.notices = res.data
+      } catch (e) {}
+    },
+    showDetail(row) {
+      this.currentNotice = row
+      this.detailVisible = true
+    },
     async fetchServerInfo() {
       try {
         const res = await request.get('/server/info')

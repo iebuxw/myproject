@@ -65,6 +65,12 @@ const routes = [
         meta: { title: '系统配置' }
       },
       {
+        path: 'system/notice',
+        name: 'Notice',
+        component: () => import('@/views/system/notice'),
+        meta: { title: '通知公告' }
+      },
+      {
         path: 'log/login',
         name: 'LoginLog',
         component: () => import('@/views/log/login'),

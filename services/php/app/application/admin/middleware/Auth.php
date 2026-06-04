@@ -12,6 +12,7 @@ class Auth
         'profile',
         'server/',
         'system_config/read',
+        'notice/published',
     ];
 
     public function handle($request, \Closure $next)
@@ -55,8 +56,9 @@ class Auth
 
         // 白名单路由跳过校验
         $path = $request->path();
+        $suffix = preg_replace('#^admin/#', '', $path);
         foreach (self::$whitelist as $prefix) {
-            if (strpos($path, $prefix) === 0) {
+            if (strpos($suffix, $prefix) === 0) {
                 return $next($request);
             }
         }

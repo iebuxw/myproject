@@ -9,6 +9,7 @@ class LoginLog extends Controller
     // GET /admin/login_log/list
     public function index()
     {
+        $request  = request();
         $page     = input('get.page', 1);
         $limit    = input('get.limit', 10);
         $username = input('get.username', '');
@@ -17,6 +18,12 @@ class LoginLog extends Controller
         $endAt    = input('get.end_at', '');
 
         $query = Db::table('login_log');
+
+        // 非超级管理员只能看自己的登录日志
+        if ($request->adminId != 1) {
+            $query->where('username', $request->admin['username']);
+        }
+
         if (!empty($username)) {
             $query->where('username', 'like', "%$username%");
         }
