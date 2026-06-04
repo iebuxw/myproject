@@ -1,2 +1,2 @@
-# 每天 3 点清理过期日志，保留天数由 system_config.log_retention_days 控制
-0 3 * * * php /var/www/html/think clean_logs >> /var/www/html/runtime/clean_logs.log 2>&1
+# 由定时任务管理系统维护，请勿手动修改含 cron:run 的行
+0 3 * * * php /var/www/html/think cron:run clean_logs
