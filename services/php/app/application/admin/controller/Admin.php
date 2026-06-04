@@ -51,6 +51,7 @@ class Admin extends Controller
     {
         $id       = input('put.id', 0);
         $password = input('put.password', '');
+        $status   = input('put.status');
         $roleIds  = input('put.role_ids', []);
 
         if ($id <= 0) {
@@ -60,6 +61,13 @@ class Admin extends Controller
         $data = [];
         if (!empty($password)) {
             $data['password'] = password_hash($password, PASSWORD_BCRYPT);
+        }
+        if ($status !== null && $status !== '') {
+            $data['status'] = intval($status);
+        }
+
+        if ($id == 1 && isset($data['status']) && $data['status'] == 0) {
+            return json(['code' => 1002, 'msg' => '不能禁用超级管理员', 'data' => null]);
         }
 
         if (!empty($data)) {

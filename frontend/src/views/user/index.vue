@@ -28,7 +28,7 @@
         <el-table-column prop="email" label="邮箱" />
         <el-table-column prop="gender" label="性别" width="70">
           <template slot-scope="{row}">
-            {{ ['未知','男','女'][row.gender] || '未知' }}
+            {{ genderMap[row.gender] || '未知' }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
@@ -92,9 +92,7 @@
         </el-form-item>
         <el-form-item label="性别">
           <el-select v-model="form.gender" style="width:100%">
-            <el-option :value="0" label="未知" />
-            <el-option :value="1" label="男" />
-            <el-option :value="2" label="女" />
+            <el-option v-for="item in genderOptions" :key="item.value" :value="Number(item.value)" :label="item.label" />
           </el-select>
         </el-form-item>
         <el-form-item v-if="form.id" label="状态">
@@ -114,12 +112,15 @@
 
 <script>
 import request from '@/api'
+import { loadDicts, dictMap } from '@/utils/dict'
 
 export default {
   name: 'UserList',
   data() {
     return {
       list: [],
+      genderMap: {},
+      genderOptions: [],
       page: 1,
       limit: 10,
       total: 0,
@@ -141,7 +142,10 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
+    const dicts = await loadDicts('gender')
+    this.genderMap = dictMap(dicts.gender)
+    this.genderOptions = dicts.gender || []
     this.fetchList({ page: this.page, limit: this.limit })
   },
   methods: {

@@ -36,6 +36,12 @@
             <el-checkbox v-for="r in roleList" :key="r.id" :label="r.id">{{ r.name }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item v-if="form.id" label="状态">
+          <el-select v-model="form.status" style="width:100%">
+            <el-option :value="1" label="启用" />
+            <el-option :value="0" label="禁用" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -56,7 +62,7 @@ export default {
       roleList: [],
       dialogVisible: false,
       dialogTitle: '',
-      form: { id: 0, username: '', password: '', role_ids: [] }
+      form: { id: 0, username: '', password: '', status: 1, role_ids: [] }
     }
   },
   created() {
@@ -74,12 +80,12 @@ export default {
     },
     handleAdd() {
       this.dialogTitle = '新增管理员'
-      this.form = { id: 0, username: '', password: '', role_ids: [] }
+      this.form = { id: 0, username: '', password: '', status: 1, role_ids: [] }
       this.dialogVisible = true
     },
     handleEdit(row) {
       this.dialogTitle = '编辑管理员'
-      this.form = { id: row.id, username: row.username, password: '', role_ids: row.role_ids || [] }
+      this.form = { id: row.id, username: row.username, password: '', status: row.status, role_ids: row.role_ids || [] }
       this.dialogVisible = true
     },
     handleDelete(row) {
@@ -94,13 +100,13 @@ export default {
       }).catch(() => {})
     },
     async handleSubmit() {
-      const { id, username, password, role_ids } = this.form
+      const { id, username, password, status, role_ids } = this.form
       if (!username) return this.$message.warning('请输入管理员用户名')
       if (!id && !password) return this.$message.warning('请输入密码')
 
       const api = id ? request.put : request.post
       const url = id ? '/admin/edit' : '/admin/add'
-      const data = id ? { id, password, role_ids } : { username, password, role_ids }
+      const data = id ? { id, password, status, role_ids } : { username, password, role_ids }
 
       const res = await api(url, data)
       if (res.code === 0) {
