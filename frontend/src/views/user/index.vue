@@ -3,7 +3,7 @@
     <el-card>
       <div slot="header">
         <span>用户管理</span>
-        <el-button type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
+        <el-button v-auth="'user:add'" type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
       </div>
 
       <el-form :model="searchForm" inline size="small" style="margin-bottom:15px">
@@ -16,8 +16,8 @@
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
-          <el-button type="success" @click="handleExport">导出</el-button>
-          <el-button type="warning" @click="handleImportDialog">导入</el-button>
+          <el-button v-auth="'user:export'" type="success" @click="handleExport">导出</el-button>
+          <el-button v-auth="'user:import'" type="warning" @click="handleImportDialog">导入</el-button>
         </el-form-item>
       </el-form>
 
@@ -39,8 +39,8 @@
         <el-table-column prop="created_at" label="创建时间" width="180" />
         <el-table-column label="操作" width="150">
           <template slot-scope="{row}">
-            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
+            <el-button v-auth="'user:edit'" type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-auth="'user:delete'" type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

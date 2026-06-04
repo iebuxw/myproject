@@ -4,7 +4,7 @@
     <el-card>
       <div slot="header">
         <span>字典管理</span>
-        <el-button type="primary" size="small" style="float:right" @click="handleAddType">新增</el-button>
+        <el-button v-auth="'dict:add'" type="primary" size="small" style="float:right" @click="handleAddType">新增</el-button>
       </div>
       <el-row style="margin-bottom:15px">
         <el-input v-model="keyword" placeholder="输入编码或名称搜索" clearable style="width:220px" @keyup.enter.native="fetchTypeList" />
@@ -23,9 +23,9 @@
         <el-table-column prop="created_at" label="创建时间" width="180" />
         <el-table-column label="操作" width="200">
           <template slot-scope="{row}">
-            <el-button type="text" @click="handleEditType(row)">编辑</el-button>
+            <el-button v-auth="'dict:edit'" type="text" @click="handleEditType(row)">编辑</el-button>
             <el-button type="text" @click="openDrawer(row)">字典项</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDeleteType(row)">删除</el-button>
+            <el-button v-auth="'dict:delete'" type="text" style="color:#f56c6c" @click="handleDeleteType(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -65,7 +65,7 @@
     <!-- 字典项抽屉 -->
     <el-drawer :title="'字典项 — ' + currentTypeName" :visible.sync="drawerVisible" size="500px">
       <div style="padding:0 20px">
-        <el-button type="primary" size="small" style="margin-bottom:15px" @click="handleAddData">新增字典项</el-button>
+        <el-button v-auth="'dict:add'" type="primary" size="small" style="margin-bottom:15px" @click="handleAddData">新增字典项</el-button>
         <el-table :data="dataList" border stripe>
           <el-table-column prop="label" label="标签" width="120" />
           <el-table-column prop="value" label="值" width="100" />
@@ -78,8 +78,8 @@
           <el-table-column prop="remark" label="备注" min-width="100" />
           <el-table-column label="操作" width="120">
             <template slot-scope="{row}">
-              <el-button type="text" @click="handleEditData(row)">编辑</el-button>
-              <el-button type="text" style="color:#f56c6c" @click="handleDeleteData(row)">删除</el-button>
+              <el-button v-auth="'dict:edit'" type="text" @click="handleEditData(row)">编辑</el-button>
+              <el-button v-auth="'dict:delete'" type="text" style="color:#f56c6c" @click="handleDeleteData(row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

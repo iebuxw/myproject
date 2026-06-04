@@ -108,7 +108,6 @@ class Auth extends Controller
             $result = Db::table('menu')
                 ->whereIn('id', $menuIds)
                 ->where('status', 1)
-                ->where('type', '<>', 3)
                 ->order('sort', 'asc')
                 ->select();
             $menus = is_object($result) ? $result->toArray() : $result;

@@ -11,6 +11,7 @@ export default new Vuex.Store({
     admin: null,
     roles: [],
     menus: [],
+    permissions: [],
     captchaKey: '',
     captchaImage: '',
     siteConfig: { site_name: '', logo: '', logo_url: '' },
@@ -30,6 +31,9 @@ export default new Vuex.Store({
     SET_MENUS(state, menus) {
       state.menus = menus
     },
+    SET_PERMISSIONS(state, permissions) {
+      state.permissions = permissions
+    },
     SET_CAPTCHA(state, { key, image }) {
       state.captchaKey = key
       state.captchaImage = image
@@ -43,6 +47,7 @@ export default new Vuex.Store({
       state.admin = null
       state.roles = []
       state.menus = []
+      state.permissions = []
       state.siteConfig = { site_name: '', logo: '', logo_url: '' }
       state.siteConfigLoaded = false
       removeToken()
@@ -82,6 +87,15 @@ export default new Vuex.Store({
         commit('SET_ADMIN', res.data.admin)
         commit('SET_ROLES', res.data.roles)
         commit('SET_MENUS', res.data.menus)
+        const perms = []
+        const extract = (menus) => {
+          menus.forEach(m => {
+            if (m.type === 3 && m.path) perms.push(m.path)
+            if (m.children) extract(m.children)
+          })
+        }
+        extract(res.data.menus || [])
+        commit('SET_PERMISSIONS', perms)
       }
       return res
     },
@@ -101,5 +115,8 @@ export default new Vuex.Store({
       }
       return res
     }
+  },
+  getters: {
+    hasPerm: state => perm => state.permissions.includes(perm)
   }
 })

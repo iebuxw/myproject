@@ -6,6 +6,14 @@ use think\Db;
 
 class Auth
 {
+    // 不需要按钮权限校验的路由前缀
+    private static $whitelist = [
+        'auth/',
+        'profile',
+        'server/',
+        'system_config/read',
+    ];
+
     public function handle($request, \Closure $next)
     {
         $adminId = Session::get('admin_id');
@@ -13,7 +21,6 @@ class Auth
             return json(['code' => 1001, 'msg' => '未登录', 'data' => null]);
         }
 
-        // 将 admin 信息存入 request
         $admin = Db::table('admin')->where('id', $adminId)->where('status', 1)->find();
         if (!$admin) {
             Session::delete('admin_id');
@@ -23,22 +30,65 @@ class Auth
         $request->adminId = $adminId;
         $request->admin = $admin;
 
-        // 获取权限标识
+        // 获取权限标识（包含 type=3 按钮的 path）
         $menuIds = Db::table('admin_role')
             ->alias('ar')
             ->join('role_menu rm', 'ar.role_id = rm.role_id')
             ->where('ar.admin_id', $adminId)
             ->column('rm.menu_id');
 
-        $request->authPaths = [];
+        $authPaths = [];
         if (!empty($menuIds)) {
-            $request->authPaths = Db::table('menu')
+            $authPaths = Db::table('menu')
                 ->whereIn('id', $menuIds)
                 ->where('status', 1)
                 ->where('path', '<>', '')
                 ->column('path');
         }
 
+        $request->authPaths = $authPaths;
+
+        // 超级管理员跳过按钮权限校验
+        if ($adminId == 1) {
+            return $next($request);
+        }
+
+        // 白名单路由跳过校验
+        $path = $request->path();
+        foreach (self::$whitelist as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                return $next($request);
+            }
+        }
+
+        // 从 URL 解析权限标识: /admin/admin/add → admin:add
+        $perm = $this->parsePermission($path);
+        if ($perm && !in_array($perm, $authPaths)) {
+            return json(['code' => 1007, 'msg' => '无权限', 'data' => null]);
+        }
+
         return $next($request);
+    }
+
+    /**
+     * 从请求路径解析权限标识
+     * /admin/admin/list → admin:list
+     * /admin/role/edit  → role:edit
+     * /admin/dict_data/items → dict_data:items
+     */
+    private function parsePermission(string $path): ?string
+    {
+        // 去掉 /admin/ 前缀
+        $suffix = preg_replace('#^admin/#', '', $path);
+        if (!$suffix || $suffix === $path) {
+            return null;
+        }
+
+        $parts = explode('/', $suffix);
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        return $parts[0] . ':' . $parts[1];
     }
 }

@@ -23,7 +23,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
+        <el-button v-auth="'system_config:edit'" type="primary" :loading="saving" @click="handleSave">保存</el-button>
       </el-form-item>
     </el-form>
   </el-card>

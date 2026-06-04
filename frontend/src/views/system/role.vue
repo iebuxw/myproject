@@ -3,7 +3,7 @@
     <el-card>
       <div slot="header">
         <span>角色管理</span>
-        <el-button type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
+        <el-button v-auth="'role:add'" type="primary" size="small" style="float:right" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
@@ -17,8 +17,8 @@
         <el-table-column prop="created_at" label="创建时间" width="180" />
         <el-table-column label="操作" width="150">
           <template slot-scope="{row}">
-            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
+            <el-button v-auth="'role:edit'" type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-auth="'role:delete'" type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

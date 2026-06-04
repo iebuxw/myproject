@@ -3,11 +3,15 @@
     <el-card>
       <div slot="header">
         <span>菜单管理</span>
-        <el-button type="primary" size="small" style="float:right" @click="handleAdd(0)">新增顶级菜单</el-button>
+        <el-button v-auth="'menu:add'" type="primary" size="small" style="float:right" @click="handleAdd(0)">新增顶级菜单</el-button>
       </div>
       <el-table :data="list" border stripe row-key="id" :tree-props="{ children: 'children' }">
         <el-table-column prop="name" label="菜单名" />
-        <el-table-column prop="path" label="路由路径" />
+        <el-table-column label="路径/标识" prop="path">
+          <template slot-scope="{row}">
+            {{ row.path || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="icon" label="图标" />
         <el-table-column prop="type" label="类型" width="80">
           <template slot-scope="{row}">
@@ -24,9 +28,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="{row}">
-            <el-button type="text" @click="handleAdd(row.id)">新增子级</el-button>
-            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
+            <el-button v-auth="'menu:add'" type="text" @click="handleAdd(row.id)">新增子级</el-button>
+            <el-button v-auth="'menu:edit'" type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-auth="'menu:delete'" type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -40,8 +44,8 @@
         <el-form-item label="菜单名" required>
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="路由路径">
-          <el-input v-model="form.path" />
+        <el-form-item :label="form.type === 3 ? '权限标识' : '路由路径'">
+          <el-input v-model="form.path" :placeholder="form.type === 3 ? '如 admin:add' : '如 /system/admin'" />
         </el-form-item>
         <el-form-item label="图标">
           <el-input v-model="form.icon" placeholder="element-ui 图标名，如 el-icon-setting" />

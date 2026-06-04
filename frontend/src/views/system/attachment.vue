@@ -20,7 +20,7 @@
             :http-request="handleUpload"
             accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar"
           >
-            <el-button type="primary" size="small" :loading="uploading">上传文件</el-button>
+            <el-button v-auth="'attachment:upload'" type="primary" size="small" :loading="uploading">上传文件</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -51,7 +51,7 @@
         <el-table-column label="操作" width="120">
           <template slot-scope="{row}">
             <el-button type="text" @click="handleDownload(row)">下载</el-button>
-            <el-button type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
+            <el-button v-auth="'attachment:delete'" type="text" style="color:#f56c6c" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
