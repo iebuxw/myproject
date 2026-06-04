@@ -6,7 +6,7 @@ ON DUPLICATE KEY UPDATE `id`=`id`;
 
 -- 日志设置菜单（挂在"日志管理"目录 id=23 下）
 INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) VALUES
-(49, 23, '日志设置', '/log/settings', '', 3, 2),
+(49, 23, '日志设置', '/log/settings', '', 50, 2),
 (50, 49, '查询', 'log_config:read', '', 1, 3),
 (51, 49, '编辑', 'log_config:update', '', 2, 3)
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);

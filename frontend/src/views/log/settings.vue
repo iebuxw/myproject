@@ -12,6 +12,9 @@
       <el-form-item label="清理登录日志">
         <el-switch v-model="form.clean_login_log" active-value="1" inactive-value="0" />
       </el-form-item>
+      <el-form-item label="清理执行日志">
+        <el-switch v-model="form.clean_cron_task_log" active-value="1" inactive-value="0" />
+      </el-form-item>
       <el-form-item>
         <el-button v-auth="'log_config:update'" type="primary" :loading="saving" @click="handleSave">保存</el-button>
         <el-button v-auth="'log_config:update'" :loading="cleaning" @click="handleCleanup">立即清理</el-button>
@@ -32,7 +35,8 @@ export default {
       form: {
         log_retention_days: 360,
         clean_operation_log: '1',
-        clean_login_log: '1'
+        clean_login_log: '1',
+        clean_cron_task_log: '1'
       }
     }
   },
@@ -47,6 +51,7 @@ export default {
           this.form.log_retention_days = parseInt(res.data.log_retention_days) || 360
           this.form.clean_operation_log = res.data.clean_operation_log || '1'
           this.form.clean_login_log = res.data.clean_login_log || '1'
+          this.form.clean_cron_task_log = res.data.clean_cron_task_log || '1'
         }
       } catch (e) {
         this.$message.error('获取配置失败')
