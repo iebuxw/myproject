@@ -39,7 +39,7 @@ INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) V
 (20, 17, '编辑用户', '', '', 3, 3),
 (21, 17, '删除用户', '', '', 4, 3),
 (23, 0, '日志管理', '', 'el-icon-document', 2, 1),
-(24, 23, '登录日志', '/log/login', '', 1, 2),
+(24, 23, '登录日志', '/log/login', '', 10, 2),
 (25, 24, '查询日志', '', '', 1, 3),
 (26, 24, '删除日志', '', '', 2, 3)
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);

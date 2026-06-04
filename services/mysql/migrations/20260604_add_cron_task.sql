@@ -39,9 +39,9 @@ INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) V
 (56, 52, '删除', 'cron_task:delete', '', 4, 3)
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);
 
--- 菜单：执行日志（同样挂在"系统管理"目录下）
+-- 菜单：执行日志（挂在"日志管理"目录 id=23 下，sort=3 排在操作日志之后）
 INSERT INTO `menu` (`id`, `parent_id`, `name`, `path`, `icon`, `sort`, `type`) VALUES
-(57, 1, '执行日志', '/system/cron-task-log', '', 7, 2),
+(57, 23, '执行日志', '/system/cron-task-log', '', 30, 2),
 (58, 57, '查询', 'cron_task_log:list', '', 1, 3),
 (59, 57, '删除', 'cron_task_log:delete', '', 2, 3)
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);

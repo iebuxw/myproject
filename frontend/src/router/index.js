@@ -77,9 +77,9 @@ const routes = [
         meta: { title: '定时任务' }
       },
       {
-        path: 'system/cron-task-log',
+        path: 'log/cron-task-log',
         name: 'CronTaskLog',
-        component: () => import('@/views/system/cron-task-log'),
+        component: () => import('@/views/log/cron-task-log'),
         meta: { title: '执行日志' }
       },
       {

@@ -19,11 +19,11 @@
           <el-date-picker
             v-model="dateRange"
             type="daterange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="yyyy-MM-dd"
-            style="width:260px"
+            style="width:350px"
           />
         </el-form-item>
         <el-form-item>
@@ -35,7 +35,7 @@
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="task_id" label="任务ID" width="70" />
-        <el-table-column prop="command" label="命令" width="140" />
+        <el-table-column prop="command" label="命令" min-width="140" />
         <el-table-column prop="status" label="状态" width="80">
           <template slot-scope="{row}">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
@@ -74,7 +74,7 @@
 import request from '@/api'
 
 export default {
-  name: 'SystemCronTaskLog',
+  name: 'LogCronTaskLog',
   data() {
     return {
       list: [],
