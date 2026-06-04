@@ -72,6 +72,7 @@ Route::group('admin', function () {
     // LogConfig
     Route::get('log_config/read', 'admin/LogConfig/read');
     Route::put('log_config/update', 'admin/LogConfig/update');
+    Route::post('log_config/cleanup', 'admin/LogConfig/cleanup');
 
     // SystemConfig
     Route::put('system_config/update', 'admin/SystemConfig/update');

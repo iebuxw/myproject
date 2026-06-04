@@ -53,6 +53,7 @@ class OperationLog
 
             // 请求参数脱敏
             $params = $request->param();
+            unset($params['adminId'], $params['admin'], $params['authPaths']);
             foreach (self::$sensitiveFields as $field) {
                 if (isset($params[$field])) {
                     $params[$field] = '******';

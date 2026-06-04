@@ -6,6 +6,29 @@ use think\Db;
 
 class LogConfig extends Controller
 {
+    // 核心清理逻辑，供 API 和定时任务共用
+    public static function doCleanup(): array
+    {
+        $configs = Db::table('system_config')
+            ->whereIn('key', ['log_retention_days', 'clean_operation_log', 'clean_login_log'])
+            ->column('value', 'key');
+
+        $days   = intval($configs['log_retention_days'] ?? 360);
+        $cutoff = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+
+        $result = ['operation_log' => 0, 'login_log' => 0, 'days' => $days];
+
+        if (($configs['clean_operation_log'] ?? '1') === '1') {
+            $result['operation_log'] = Db::table('operation_log')->where('created_at', '<', $cutoff)->delete();
+        }
+
+        if (($configs['clean_login_log'] ?? '1') === '1') {
+            $result['login_log'] = Db::table('login_log')->where('created_at', '<', $cutoff)->delete();
+        }
+
+        return $result;
+    }
+
     // GET /admin/log_config/read
     public function read()
     {
@@ -41,5 +64,16 @@ class LogConfig extends Controller
         Db::table('system_config')->where('key', 'clean_login_log')->update(['value' => $cleanLoginLog === '1' ? '1' : '0']);
 
         return json(['code' => 0, 'msg' => '保存成功', 'data' => null]);
+    }
+
+    // POST /admin/log_config/cleanup
+    public function cleanup()
+    {
+        $result = self::doCleanup();
+        return json([
+            'code' => 0,
+            'msg'  => "已清理 {$result['operation_log']} 条操作日志、{$result['login_log']} 条登录日志（保留最近 {$result['days']} 天）",
+            'data' => $result,
+        ]);
     }
 }

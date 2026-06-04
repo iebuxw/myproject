@@ -4,7 +4,7 @@ namespace app\command;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\Db;
+use think\facade\Log;
 
 class CleanLogs extends Command
 {
@@ -15,22 +15,9 @@ class CleanLogs extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $configs = Db::table('system_config')
-            ->whereIn('key', ['log_retention_days', 'clean_operation_log', 'clean_login_log'])
-            ->column('value', 'key');
-
-        $days = intval($configs['log_retention_days'] ?? 360);
-        $cutoff = date('Y-m-d H:i:s', strtotime("-{$days} days"));
-        $ts = date('Y-m-d H:i:s');
-
-        if (($configs['clean_operation_log'] ?? '1') === '1') {
-            $count = Db::table('operation_log')->where('created_at', '<', $cutoff)->delete();
-            $output->writeln("[{$ts}] 清理操作日志: {$count} 条（保留最近 {$days} 天）");
-        }
-
-        if (($configs['clean_login_log'] ?? '1') === '1') {
-            $count = Db::table('login_log')->where('created_at', '<', $cutoff)->delete();
-            $output->writeln("[{$ts}] 清理登录日志: {$count} 条（保留最近 {$days} 天）");
-        }
+        $result = \app\admin\controller\LogConfig::doCleanup();
+        $msg = "清理操作日志 {$result['operation_log']} 条，清理登录日志 {$result['login_log']} 条（保留最近 {$result['days']} 天）";
+        Log::info($msg);
+        $output->writeln($msg);
     }
 }

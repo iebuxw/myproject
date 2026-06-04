@@ -14,6 +14,7 @@
       </el-form-item>
       <el-form-item>
         <el-button v-auth="'log_config:update'" type="primary" :loading="saving" @click="handleSave">保存</el-button>
+        <el-button v-auth="'log_config:update'" :loading="cleaning" @click="handleCleanup">立即清理</el-button>
       </el-form-item>
     </el-form>
   </el-card>
@@ -27,6 +28,7 @@ export default {
   data() {
     return {
       saving: false,
+      cleaning: false,
       form: {
         log_retention_days: 360,
         clean_operation_log: '1',
@@ -49,6 +51,23 @@ export default {
       } catch (e) {
         this.$message.error('获取配置失败')
       }
+    },
+    async handleCleanup() {
+      this.$confirm('确定要立即清理过期日志吗？', '提示', { type: 'warning' }).then(async () => {
+        this.cleaning = true
+        try {
+          const res = await request.post('/log_config/cleanup')
+          if (res.code === 0) {
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error(res.msg || '清理失败')
+          }
+        } catch (e) {
+          this.$message.error('清理失败')
+        } finally {
+          this.cleaning = false
+        }
+      }).catch(() => {})
     },
     async handleSave() {
       this.saving = true
