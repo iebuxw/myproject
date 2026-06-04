@@ -1,2 +1,2 @@
 # 每天 3 点清理过期日志，保留天数由 system_config.log_retention_days 控制
-0 3 * * * php /var/www/html/cli/clean_logs.php >> /var/www/html/runtime/clean_logs.log 2>&1
+0 3 * * * php /var/www/html/think clean_logs >> /var/www/html/runtime/clean_logs.log 2>&1

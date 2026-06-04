@@ -3,6 +3,10 @@
 // ThinkPHP CLI 入口
 namespace think;
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/thinkphp/base.php';
 
-Container::get('app')->run()->send();
+// 初始化应用（加载配置）
+Container::get('app')->initialize();
+
+// 启动控制台
+Console::init();
