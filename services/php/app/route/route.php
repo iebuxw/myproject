@@ -80,6 +80,19 @@ Route::group('admin', function () {
     // Server
     Route::get('server/info', 'admin/Server/info');
 
+    // CronTask
+    Route::get('cron_task/list', 'admin/CronTask/index');
+    Route::get('cron_task/commands', 'admin/CronTask/commands');
+    Route::post('cron_task/add', 'admin/CronTask/save');
+    Route::put('cron_task/edit', 'admin/CronTask/update');
+    Route::delete('cron_task/delete', 'admin/CronTask/delete');
+    Route::put('cron_task/toggle', 'admin/CronTask/toggle');
+    Route::post('cron_task/run', 'admin/CronTask/run');
+
+    // CronTaskLog
+    Route::get('cron_task_log/list', 'admin/CronTaskLog/index');
+    Route::delete('cron_task_log/delete', 'admin/CronTaskLog/delete');
+
     // Profile（个人中心，不检查 RBAC 权限：管理员只能操作自己的数据）
     Route::get('profile', 'admin/Profile/read');
     Route::post('profile/avatar', 'admin/Profile/avatar');
