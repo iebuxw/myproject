@@ -38,9 +38,15 @@ class CronTask extends Controller
         }
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'crontab_');
-        file_put_contents($tmpFile, $newContent);
-        exec("crontab {$tmpFile} 2>&1", $out, $cr);
-        unlink($tmpFile);
+        if ($tmpFile === false) {
+            return false;
+        }
+        try {
+            file_put_contents($tmpFile, $newContent);
+            exec("crontab {$tmpFile} 2>&1", $out, $cr);
+        } finally {
+            @unlink($tmpFile);
+        }
 
         return $cr === 0;
     }
@@ -53,14 +59,11 @@ class CronTask extends Controller
             if ($class === 'app\command\CronRun') {
                 continue;
             }
-            $ref = new \ReflectionClass($class);
-            $instance = $ref->newInstanceWithoutConstructor();
-            $prop = $ref->getProperty('definition');
-            $prop->setAccessible(true);
-            $definition = $prop->getValue($instance);
-            $name = $definition->getName();
-            $desc = $definition->getDescription() ?: '';
-            $list[] = ['name' => $name, 'description' => $desc];
+            $instance = new $class();
+            $list[] = [
+                'name'        => $instance->getName(),
+                'description' => $instance->getDescription() ?: '',
+            ];
         }
         return $list;
     }
@@ -177,7 +180,7 @@ class CronTask extends Controller
             }
             $data['cron_expr'] = $cronExpr;
         }
-        if ($remark !== null && $remark !== '') {
+        if ($remark !== null) {
             $data['remark'] = $remark;
         }
 
