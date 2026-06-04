@@ -1,3 +1,2 @@
-# 每天 1 点清理 30 天前的 ThinkPHP 日志（已改用 max_files，crontab 备用）
-# 0 1 * * * /usr/local/bin/cleanup-logs.sh
-
+# 每天 3 点清理过期日志，保留天数由 system_config.log_retention_days 控制
+0 3 * * * php /var/www/html/cli/clean_logs.php >> /var/www/html/runtime/clean_logs.log 2>&1

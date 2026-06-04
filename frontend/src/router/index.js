@@ -83,6 +83,12 @@ const routes = [
         meta: { title: '操作日志' }
       },
       {
+        path: 'log/settings',
+        name: 'LogSettings',
+        component: () => import('@/views/log/settings'),
+        meta: { title: '日志设置' }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/profile/index'),

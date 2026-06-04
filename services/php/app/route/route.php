@@ -69,6 +69,10 @@ Route::group('admin', function () {
     Route::get('operation_log/list', 'admin/OperationLog/index');
     Route::delete('operation_log/delete', 'admin/OperationLog/delete');
 
+    // LogConfig
+    Route::get('log_config/read', 'admin/LogConfig/read');
+    Route::put('log_config/update', 'admin/LogConfig/update');
+
     // SystemConfig
     Route::put('system_config/update', 'admin/SystemConfig/update');
 

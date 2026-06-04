@@ -13,6 +13,7 @@ class OperationLog
         'menu'          => '菜单管理',
         'user'          => '用户管理',
         'notice'        => '通知公告',
+        'log_config'    => '日志设置',
         'login_log'     => '登录日志',
         'operation_log' => '操作日志',
         'profile'       => '个人中心',
