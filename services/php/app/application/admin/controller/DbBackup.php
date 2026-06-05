@@ -92,7 +92,10 @@ class DbBackup extends Controller
 
         try {
             // 自动快照
-            \app\command\BackupDb::doBackup(1, 1, '恢复前自动快照');
+            \app\command\BackupDb::doBackup(1, 1, '恢复前自动快照（来源：ID=' . $id . ' ' . $backup['filename'] . '）');
+
+            // 保存备份记录元数据（恢复会覆盖整个数据库包括此表）
+            $backupRecords = Db::table('db_backup')->order('id', 'asc')->select();
 
             // 执行恢复
             $host = getenv('DB_HOST') ?: '127.0.0.1';
@@ -107,6 +110,12 @@ class DbBackup extends Controller
             if ($output && stripos($output, 'error') !== false) {
                 Cache::rm('system:maintenance');
                 return json(['code' => 500, 'msg' => '恢复失败：' . $output, 'data' => null]);
+            }
+
+            // 还原备份记录元数据
+            Db::execute('DELETE FROM db_backup');
+            foreach ($backupRecords as $row) {
+                Db::table('db_backup')->insert($row);
             }
 
             // 解除锁定
@@ -158,9 +167,11 @@ class DbBackup extends Controller
             return json(['code' => 1004, 'msg' => '备份记录不存在', 'data' => null]);
         }
 
-        $filepath = '/var/www/backups/' . $backup['filename'];
-        if (file_exists($filepath)) {
-            @unlink($filepath);
+        if (!empty($backup['filename'])) {
+            $filepath = '/var/www/backups/' . $backup['filename'];
+            if (file_exists($filepath)) {
+                @unlink($filepath);
+            }
         }
 
         Db::table('db_backup')->where('id', $id)->delete();
