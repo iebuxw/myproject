@@ -10,7 +10,7 @@ class CleanLogs extends Command
 {
     protected function configure()
     {
-        $this->setName('clean_logs')->setDescription('清理过期的操作日志和登录日志');
+        $this->setName('clean_logs')->setDescription('清理过期的日志');
     }
 
     protected function execute(Input $input, Output $output)
