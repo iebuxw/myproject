@@ -3,7 +3,10 @@
     <el-card>
       <div slot="header">
         <span>数据库备份</span>
-        <el-button v-auth="'db_backup:add'" type="primary" size="small" style="float:right" @click="handleAdd">新增备份</el-button>
+        <div style="float:right">
+          <el-button size="small" @click="showConfigDialog">备份设置</el-button>
+          <el-button v-auth="'db_backup:add'" type="primary" size="small" @click="handleAdd">新增备份</el-button>
+        </div>
       </div>
 
       <el-form :model="searchForm" inline size="small" style="margin-bottom:15px">
@@ -17,10 +20,6 @@
             value-format="yyyy-MM-dd"
             @change="handleSearch"
           />
-        </el-form-item>
-        <el-form-item label="保留天数">
-          <el-input-number v-model="keepDays" :min="1" :max="365" size="small" style="width:100px" />
-          <el-button type="primary" size="small" style="margin-left:8px" @click="handleSaveConfig">保存</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -91,6 +90,21 @@
         <el-button type="danger" :disabled="confirmText !== '确认恢复'" :loading="restoreLoading" @click="doRestore">确认恢复</el-button>
       </span>
     </el-dialog>
+
+    <!-- 保留天数配置弹窗 -->
+    <el-dialog title="备份保留配置" :visible.sync="configVisible" width="400px">
+      <el-form label-width="100px">
+        <el-form-item label="保留天数">
+          <el-input-number v-model="keepDays" :min="1" :max="365" style="width:150px" />
+          <span style="margin-left:8px;color:#999;font-size:12px">天</span>
+        </el-form-item>
+      </el-form>
+      <p style="color:#999;font-size:12px;padding-left:100px">超过保留天数的备份将在定时清理任务中自动删除</p>
+      <span slot="footer">
+        <el-button @click="configVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveConfig">保存</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,7 +125,8 @@ export default {
       restoreId: 0,
       confirmText: '',
       restoreLoading: false,
-      keepDays: 30
+      keepDays: 30,
+      configVisible: false
     }
   },
   created() {
@@ -144,10 +159,14 @@ export default {
         const res = await request.put('/db_backup/config', { keep_days: this.keepDays })
         if (res.code === 0) {
           this.$message.success('保存成功')
+          this.configVisible = false
         } else {
           this.$message.error(res.msg)
         }
       } catch (e) {}
+    },
+    showConfigDialog() {
+      this.configVisible = true
     },
     handleSearch() {
       if (this.dateRange && this.dateRange.length === 2) {
@@ -175,11 +194,27 @@ export default {
         const res = await request.post('/db_backup/add')
         if (res.code === 0) {
           this.$message.success(res.msg)
-          setTimeout(() => this.fetchList(), 2000)
+          this.fetchList()
+          this.pollBackupStatus()
         } else {
           this.$message.error(res.msg)
         }
       } catch (e) {}
+    },
+    pollBackupStatus() {
+      let count = 0
+      const timer = setInterval(async () => {
+        count++
+        if (count > 30) {
+          clearInterval(timer)
+          return
+        }
+        await this.fetchList()
+        const running = this.list.some(r => r.status === 0 && r.remark === '备份中...')
+        if (!running) {
+          clearInterval(timer)
+        }
+      }, 3000)
     },
     handleRestore(row) {
       this.restoreId = row.id
