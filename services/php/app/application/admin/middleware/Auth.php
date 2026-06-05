@@ -2,6 +2,7 @@
 namespace app\admin\middleware;
 
 use think\facade\Session;
+use think\facade\Cache;
 use think\Db;
 
 class Auth
@@ -17,7 +18,16 @@ class Auth
 
     public function handle($request, \Closure $next)
     {
+        // 维护模式检查：超管不受影响
         $adminId = Session::get('admin_id');
+        if ($adminId != 1) {
+            try {
+                if (Cache::get('system:maintenance')) {
+                    return json(['code' => 1001, 'msg' => '系统维护中', 'data' => null]);
+                }
+            } catch (\Exception $e) {}
+        }
+
         if (!$adminId) {
             return json(['code' => 1001, 'msg' => '未登录', 'data' => null]);
         }

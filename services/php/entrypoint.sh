@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 确保备份目录存在且 www-data 可写
+mkdir -p /var/www/backups
+chown -R www-data:www-data /var/www/backups
+
 # 确保 uploads 目录存在且 www-data 可写
 mkdir -p /var/www/html/uploads/avatars
 mkdir -p /var/www/html/uploads/attachments

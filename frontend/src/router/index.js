@@ -77,6 +77,12 @@ const routes = [
         meta: { title: '定时任务' }
       },
       {
+        path: 'system/db-backup',
+        name: 'DbBackup',
+        component: () => import('@/views/system/db-backup'),
+        meta: { title: '数据库备份' }
+      },
+      {
         path: 'log/cron-task-log',
         name: 'CronTaskLog',
         component: () => import('@/views/log/cron-task-log'),

@@ -50,6 +50,14 @@ func GenerateRefreshToken(secret string, user *model.User) (string, error) {
 
 func JWTAuth(secret string, rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 维护模式检查：数据库恢复期间阻止所有 APP 用户请求
+		ctx := context.Background()
+		maintenance, _ := rdb.Get(ctx, "system:maintenance").Result()
+		if maintenance != "" {
+			c.AbortWithStatusJSON(http.StatusOK, model.Response{Code: 1001, Msg: "系统维护中", Data: nil})
+			return
+		}
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			c.AbortWithStatusJSON(http.StatusOK, model.Response{Code: 1001, Msg: "未登录", Data: nil})
@@ -59,7 +67,6 @@ func JWTAuth(secret string, rdb *redis.Client) gin.HandlerFunc {
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// 检查黑名单
-		ctx := context.Background()
 		exists, _ := rdb.Exists(ctx, "blacklist:"+tokenStr).Result()
 		if exists > 0 {
 			c.AbortWithStatusJSON(http.StatusOK, model.Response{Code: 1001, Msg: "token已失效", Data: nil})

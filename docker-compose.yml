@@ -60,6 +60,7 @@ services:
       - ./services/php/app/public:/var/www/html/public
       - ./services/php/app/runtime:/var/www/html/runtime
       - upload_data:/var/www/html/uploads
+      - backup_data:/var/www/backups
       - /proc:/host_proc:ro
     cap_add:
       - SYS_PTRACE
@@ -212,6 +213,7 @@ volumes:
   mysql_data:
   redis_data:
   upload_data:
+  backup_data:
 
 networks:
   app-network:
