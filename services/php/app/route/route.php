@@ -99,6 +99,8 @@ Route::group('admin', function () {
     Route::post('db_backup/restore', 'admin/DbBackup/restore');
     Route::get('db_backup/download', 'admin/DbBackup/download');
     Route::delete('db_backup/delete', 'admin/DbBackup/delete');
+    Route::get('db_backup/config', 'admin/DbBackup/config');
+    Route::put('db_backup/config', 'admin/DbBackup/saveConfig');
 
     // Profile（个人中心，不检查 RBAC 权限：管理员只能操作自己的数据）
     Route::get('profile', 'admin/Profile/read');

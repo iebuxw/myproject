@@ -163,6 +163,33 @@ class DbBackup extends Controller
         return json(['code' => 0, 'msg' => 'success', 'data' => null]);
     }
 
+    // GET /admin/db_backup/config
+    public function config()
+    {
+        $row = Db::table('system_config')->where('key', 'db_backup_keep_days')->find();
+        $keepDays = $row ? (int)$row['value'] : 30;
+
+        return json(['code' => 0, 'msg' => 'success', 'data' => ['keep_days' => $keepDays]]);
+    }
+
+    // PUT /admin/db_backup/config
+    public function saveConfig()
+    {
+        $keepDays = input('put.keep_days', 0);
+        if ($keepDays < 1 || $keepDays > 365) {
+            return json(['code' => 1002, 'msg' => '保留天数应在1-365之间', 'data' => null]);
+        }
+
+        $exists = Db::table('system_config')->where('key', 'db_backup_keep_days')->find();
+        if ($exists) {
+            Db::table('system_config')->where('key', 'db_backup_keep_days')->update(['value' => (string)$keepDays]);
+        } else {
+            Db::table('system_config')->insert(['key' => 'db_backup_keep_days', 'value' => (string)$keepDays]);
+        }
+
+        return json(['code' => 0, 'msg' => 'success', 'data' => null]);
+    }
+
     private function checkPermission($adminId, $perm)
     {
         if ($adminId == 1) {

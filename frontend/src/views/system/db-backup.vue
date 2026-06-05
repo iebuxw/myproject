@@ -18,6 +18,10 @@
             @change="handleSearch"
           />
         </el-form-item>
+        <el-form-item label="保留天数">
+          <el-input-number v-model="keepDays" :min="1" :max="365" size="small" style="width:100px" />
+          <el-button type="primary" size="small" style="margin-left:8px" @click="handleSaveConfig">保存</el-button>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
@@ -106,11 +110,13 @@ export default {
       restoreVisible: false,
       restoreId: 0,
       confirmText: '',
-      restoreLoading: false
+      restoreLoading: false,
+      keepDays: 30
     }
   },
   created() {
     this.fetchList()
+    this.fetchConfig()
   },
   methods: {
     async fetchList() {
@@ -122,6 +128,24 @@ export default {
         if (res.code === 0) {
           this.list = res.data.list
           this.total = res.data.total
+        }
+      } catch (e) {}
+    },
+    async fetchConfig() {
+      try {
+        const res = await request.get('/db_backup/config')
+        if (res.code === 0 && res.data.keep_days) {
+          this.keepDays = res.data.keep_days
+        }
+      } catch (e) {}
+    },
+    async handleSaveConfig() {
+      try {
+        const res = await request.put('/db_backup/config', { keep_days: this.keepDays })
+        if (res.code === 0) {
+          this.$message.success('保存成功')
+        } else {
+          this.$message.error(res.msg)
         }
       } catch (e) {}
     },
