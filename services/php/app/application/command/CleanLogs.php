@@ -17,7 +17,7 @@ class CleanLogs extends Command
     {
         $result = \app\admin\controller\LogConfig::doCleanup();
         $msg = "清理操作日志 {$result['operation_log']} 条，清理登录日志 {$result['login_log']} 条（保留最近 {$result['days']} 天）";
-        Log::info($msg);
+        Log::notice($msg);
         $output->writeln($msg);
     }
 }

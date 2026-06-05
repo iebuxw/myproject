@@ -61,7 +61,7 @@ class CronRun extends Command
 
         $logMsg = "[CronRun] {$commandName} " . ($status ? 'SUCCESS' : 'FAILED') . " ({$duration}s)";
         if ($status) {
-            Log::info($logMsg);
+            Log::notice($logMsg);
         } else {
             Log::error($logMsg . ' ' . $resultOutput);
         }
