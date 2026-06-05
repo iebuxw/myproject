@@ -53,7 +53,8 @@ class DbBackup extends Controller
         ]);
 
         // 后台异步执行备份（传 record_id 让命令更新该记录而非新建）
-        $phpBin = PHP_BINARY ?: 'php';
+        // 注意：PHP_BINARY 在 FPM 下指向 php-fpm 而非 php-cli，需用 exec('which php') 获取正确路径
+        $phpBin = trim(shell_exec('which php 2>/dev/null')) ?: '/usr/local/bin/php';
         $thinkPath = app()->getRootPath() . 'think';
         exec("nohup {$phpBin} {$thinkPath} backup_db {$id} > /dev/null 2>&1 &");
 
