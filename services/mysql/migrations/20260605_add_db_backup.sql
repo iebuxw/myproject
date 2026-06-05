@@ -25,3 +25,14 @@ ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);
 INSERT INTO `role_menu` (`role_id`, `menu_id`) VALUES
 (1,70),(1,71),(1,72),(1,73),(1,74)
 ON DUPLICATE KEY UPDATE `id`=`id`;
+
+-- 预装定时任务：每天凌晨2点自动备份数据库
+INSERT INTO `cron_task` (`name`, `command`, `cron_expr`, `status`, `remark`) VALUES
+('数据库备份', 'backup_db', '0 2 * * *', 1, '每天凌晨2点自动备份数据库'),
+('清理过期备份', 'clean_backup', '0 4 * * *', 1, '每天凌晨4点清理过期备份')
+ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);
+
+-- 备份保留天数配置
+INSERT INTO `system_config` (`key`, `value`) VALUES
+('db_backup_keep_days', '30')
+ON DUPLICATE KEY UPDATE `value`=VALUES(`value`);
