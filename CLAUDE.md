@@ -59,8 +59,6 @@ Nginx 是唯一对外暴露端口（:80），按路径前缀分发：
 
 MySQL 5.7，迁移文件在 `services/mysql/migrations/`。**改数据库只新增迁移文件，禁止修改已有迁移**——为什么：已有环境 schema 状态不可预测，覆盖式迁移会丢数据。已有环境执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"`。迁移 SQL 建议幂等（`IF NOT EXISTS`、`ON DUPLICATE KEY UPDATE`）。
 
-核心表：`admin`（管理员）、`user`（APP 用户）、`role`、`menu`（1=目录 2=菜单 3=按钮）、`admin_role`、`role_menu`、`dict_type / dict_data`、`attachment`、`login_log / operation_log`。
-
 ### 术语约束（重要）
 
 admin 和 user 是完全独立的身份体系，混淆会导致错误的数据库操作和界面歧义。

@@ -123,49 +123,15 @@
 - **环境隔离**：数据库密码、JWT 密钥等敏感配置通过 `.env` 注入
 - **数据库迁移**：MySQL 首次启动自动执行幂等迁移脚本，后续新增迁移文件即可
 
-### 8. RESTful API 设计
+### 8. 数据库备份与恢复
 
-**Go API**：
+- **异步备份**：新增备份后通过 `nohup` 后台执行 mysqldump + gzip，前端轮询状态直到完成
+- **安全恢复**：仅超管可操作，恢复前自动创建快照（含来源标记），恢复期间系统进入维护模式（Redis 锁，10 分钟自动过期）
+- **元数据保护**：恢复覆盖数据库后自动还原 `db_backup` 表记录，避免备份记录丢失
+- **定时清理**：可配置保留天数，定时任务自动清理过期备份
+- **文件管理**：备份文件存储在 Docker 卷 `backup_data`，支持下载和删除
 
-```
-POST   /api/v1/auth/login      # 登录
-POST   /api/v1/auth/refresh    # 刷新 Token
-POST   /api/v1/auth/logout     # 登出
-GET    /api/v1/user/profile    # 获取个人信息
-PUT    /api/v1/user/profile    # 修改个人信息
-GET    /swagger/index.html     # Swagger API 文档
-```
-
-**PHP 后台 API**：
-
-```
-GET    /admin/auth/captcha         # 获取验证码
-POST   /admin/auth/login           # 登录
-POST   /admin/auth/logout          # 登出
-GET    /admin/auth/info            # 获取管理员信息
-GET    /admin/admin/list           # 管理员列表
-POST   /admin/admin/add            # 新增管理员
-PUT    /admin/admin/edit           # 编辑管理员
-DELETE /admin/admin/delete         # 删除管理员
-GET    /admin/role/list            # 角色列表
-POST   /admin/role/add             # 新增角色
-PUT    /admin/role/edit            # 编辑角色
-DELETE /admin/role/delete          # 删除角色
-GET    /admin/user/list            # 用户列表
-POST   /admin/user/add             # 新增用户
-PUT    /admin/user/edit            # 编辑用户
-DELETE /admin/user/delete          # 删除用户
-GET    /admin/user/export          # 导出用户 Excel
-POST   /admin/user/import          # 导入用户 Excel
-GET    /admin/menu/list            # 菜单列表
-POST   /admin/menu/add             # 新增菜单
-PUT    /admin/menu/edit            # 编辑菜单
-DELETE /admin/menu/delete          # 删除菜单
-GET    /admin/login_log/list       # 登录日志列表
-DELETE /admin/login_log/delete     # 删除登录日志
-GET    /admin/operation_log/list   # 操作日志列表
-DELETE /admin/operation_log/delete # 删除操作日志
-```
+### 9. RESTful API 设计
 
 - **统一响应格式**：`{"code": 0, "msg": "success", "data": {...}}`
 - **语义化错误码**：`0` 成功 / `1001` 未登录 / `1002` 参数错误 / `1003` 认证失败 / `500` 服务端错误
@@ -201,25 +167,14 @@ docker-compose up -d --build
 
 ## 数据库设计
 
-8 张表，严格区分 **管理员（内部）** 与 **用户（to-C）** 两个体系：
+严格区分 **管理员（内部）** 与 **用户（to-C）** 两个体系：
 
 ```
 admin ──MM── role ──MM── menu
 user (独立，Go API 管理)
-login_log      (登录日志)
-operation_log  (操作日志，关联 admin)
 ```
 
-| 表 | 说明 | 关键字段 |
-|----|------|----------|
-| `admin` | 后台管理员 | username, password(bcrypt), status |
-| `user` | APP 用户 | phone, password(bcrypt), nickname, email, gender |
-| `role` | 角色 | name, description |
-| `menu` | 菜单/权限 | parent_id, name, path, type(1目录2菜单3按钮) |
-| `admin_role` | 管理员↔角色 | admin_id, role_id |
-| `role_menu` | 角色↔菜单 | role_id, menu_id |
-| `login_log` | 登录日志 | username, ip, user_agent, status, message |
-| `operation_log` | 操作日志 | admin_id, username, module, action, method, url, params, ip |
+迁移文件在 `services/mysql/migrations/`，具体表结构以迁移文件为准。
 
 ## API 示例（Go 服务）
 
@@ -261,47 +216,6 @@ curl http://localhost/admin/user/export -b "PHPSESSID=<session_id>"
 curl -X POST http://localhost/admin/user/import \
   -b "PHPSESSID=<session_id>" \
   -F "file=@users.xlsx"
-```
-
-## 项目结构
-
-```
-myproject/
-├── frontend/src/                 # Vue2 前端
-│   ├── api/                      # axios 封装 + 拦截器
-│   ├── router/                   # 路由表 + beforeEach 守卫
-│   ├── store/                    # Vuex 状态管理（含验证码）
-│   ├── layout/                   # 主布局（侧边栏 + 顶栏）
-│   ├── components/               # 公共组件（Sidebar）
-│   └── views/
-│       ├── login/index.vue       # 登录页（含验证码）
-│       ├── dashboard/index.vue
-│       ├── user/index.vue        # 用户管理（含导入导出）
-│       ├── system/               # 管理员 / 角色 / 菜单管理
-│       └── log/                  # 登录日志 / 操作日志
-├── services/
-│   ├── nginx/                    # Nginx 配置 + 多阶段 Dockerfile
-│   ├── php/app/
-│   │   ├── application/admin/
-│   │   │   ├── controller/       # Auth, Admin, Role, Menu, User, LoginLog, OperationLog
-│   │   │   └── middleware/       # Auth 中间件（RBAC）+ OperationLog 中间件
-│   │   ├── config/               # 数据库/缓存/Session 配置
-│   │   └── route/                # 路由定义（含中间件路由组）
-│   ├── go/app/
-│   │   ├── handler/              # auth.go, user.go
-│   │   ├── middleware/           # JWT 中间件
-│   │   ├── model/                # User 模型 + Response 结构体
-│   │   ├── router/               # Gin 路由 + CORS + Swagger
-│   │   ├── config/               # 环境变量读取
-│   │   └── docs/                 # swag 自动生成的 Swagger 文档
-│   ├── mysql/
-│   │   ├── init/                 # init.sql（建库 + 迁移追踪表）
-│   │   └── migrations/           # 时间戳迁移文件（幂等）
-│   └── redis/
-│       └── redis.conf            # 自定义配置（128MB / allkeys-lru）
-├── docker-compose.yml            # 5 服务编排
-├── .env                          # 环境变量（不入库）
-└── CLAUDE.md                     # AI 编程助手指令
 ```
 
 ## 开发指南

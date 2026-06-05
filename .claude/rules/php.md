@@ -5,16 +5,6 @@ paths:
 
 # PHP 项目结构
 
-```
-services/php/app/
-├── application/admin/
-│   ├── controller/       # Auth, Admin, Role, Menu, User, Attachment, DictType/DictData, LoginLog/OperationLog, Profile, Server
-│   └── middleware/Auth.php  # 登录检查 + RBAC 权限查询
-├── config/               # database, session, cache, app
-├── route/route.php       # 所有路由定义（admin/* 前缀）
-└── public/index.php      # TP5.1 入口
-```
-
 PHP 7.4 + ThinkPHP 5.1。数据库配置从环境变量读取（`getenv()`）。所有 `/admin` 路由通过 `Auth` 中间件（除 login/logout 外），中间件通过 `admin_role` + `role_menu` 获取管理员的 `authPaths`，各控制器自行检查具体按钮权限。Nginx 通过 fastcgi_pass 转发 PHP，SCRIPT_FILENAME 指向 `/var/www/html/public/index.php`。
 
 ## ThinkPHP 5.1 文档
