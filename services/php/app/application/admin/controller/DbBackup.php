@@ -114,9 +114,7 @@ class DbBackup extends Controller
 
             // 还原备份记录元数据
             Db::execute('DELETE FROM db_backup');
-            foreach ($backupRecords as $row) {
-                Db::table('db_backup')->insert($row);
-            }
+            Db::table('db_backup')->insertAll($backupRecords);
 
             // 解除锁定
             Cache::rm('system:maintenance');
