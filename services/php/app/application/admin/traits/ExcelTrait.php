@@ -49,12 +49,17 @@ trait ExcelTrait
             }
         }
 
-        // 保存临时文件并用 download() 返回
-        $tmpPath = env('runtime_path') . $filename;
+        // 输出到缓冲区，通过框架响应返回，不落盘
+        ob_start();
         $writer = new Xlsx($spreadsheet);
-        $writer->save($tmpPath);
+        $writer->save('php://output');
+        $content = ob_get_clean();
 
-        return download($tmpPath, $filename)->expire(180);
+        return response($content, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'max-age=0',
+        ]);
     }
 
     /**
