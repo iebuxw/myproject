@@ -68,6 +68,21 @@ class Menu extends Controller
                     }
                     Db::table('role_menu')->insertAll($rows, [], true);
                 }
+
+                $oldParentId = $old['parent_id'];
+                if ($oldParentId > 0) {
+                    $siblings = Db::table('menu')->where('parent_id', $oldParentId)->where('id', '<>', $id)->column('id');
+                    foreach ($roleIds as $roleId) {
+                        if (empty($siblings)) {
+                            Db::table('role_menu')->where('role_id', $roleId)->where('menu_id', $oldParentId)->delete();
+                        } else {
+                            $hasSibling = Db::table('role_menu')->where('role_id', $roleId)->where('menu_id', 'in', $siblings)->find();
+                            if (!$hasSibling) {
+                                Db::table('role_menu')->where('role_id', $roleId)->where('menu_id', $oldParentId)->delete();
+                            }
+                        }
+                    }
+                }
             }
         }
 
