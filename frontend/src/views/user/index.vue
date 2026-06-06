@@ -112,6 +112,7 @@
 
 <script>
 import request from '@/api'
+import axios from 'axios'
 import { loadDicts, dictMap } from '@/utils/dict'
 
 export default {
@@ -179,11 +180,33 @@ export default {
       if (this.searchForm.nickname) params.nickname = this.searchForm.nickname
       this.fetchList(params)
     },
-    handleExport() {
+    async handleExport() {
       const params = new URLSearchParams()
       if (this.searchForm.phone) params.append('phone', this.searchForm.phone)
       if (this.searchForm.nickname) params.append('nickname', this.searchForm.nickname)
-      window.location.href = '/admin/user/export?' + params.toString()
+      try {
+        const res = await axios.get('/admin/user/export?' + params.toString(), { responseType: 'blob' })
+        if (res.data.type === 'application/json') {
+          const text = await res.data.text()
+          const json = JSON.parse(text)
+          if (json.code === 1001) {
+            this.$router.push('/login')
+            return
+          }
+          this.$message.error(json.msg || '导出失败')
+          return
+        }
+        const url = window.URL.createObjectURL(res.data)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = ''
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      } catch {
+        this.$message.error('导出失败')
+      }
     },
     handleImportDialog() {
       this.importFile = null
