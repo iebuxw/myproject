@@ -3,12 +3,12 @@ namespace app\admin\controller;
 
 use think\Controller;
 use think\Db;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use app\admin\traits\ExcelTrait;
 
 class User extends Controller
 {
+    use ExcelTrait;
+
     // GET /admin/user/list
     public function index()
     {
@@ -112,132 +112,49 @@ class User extends Controller
         if (!empty($nickname)) {
             $query->where('nickname', 'like', "%$nickname%");
         }
-        $list = $query->order('id', 'desc')->select();
+        $query->order('id', 'desc');
 
         $genderMap = ['未知', '男', '女'];
-        $headers = ['ID' => 'integer', '手机号' => 'string', '昵称' => 'string', '邮箱' => 'string', '性别' => 'string', '状态' => 'string', '创建时间' => 'string'];
 
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('用户列表');
-
-        $col = 1;
-        foreach ($headers as $title => $type) {
-            $sheet->setCellValueByColumnAndRow($col++, 1, $title);
-        }
-
-        $rowIdx = 2;
-        foreach ($list as $row) {
-            $sheet->setCellValueByColumnAndRow(1, $rowIdx, $row['id']);
-            $sheet->setCellValueByColumnAndRow(2, $rowIdx, $row['phone']);
-            $sheet->setCellValueByColumnAndRow(3, $rowIdx, $row['nickname'] ?? '');
-            $sheet->setCellValueByColumnAndRow(4, $rowIdx, $row['email'] ?? '');
-            $sheet->setCellValueByColumnAndRow(5, $rowIdx, $genderMap[$row['gender']] ?? '未知');
-            $sheet->setCellValueByColumnAndRow(6, $rowIdx, $row['status'] === 1 ? '启用' : '禁用');
-            $sheet->setCellValueByColumnAndRow(7, $rowIdx, $row['created_at']);
-            $rowIdx++;
-        }
-
-        $filename = '用户列表_' . date('YmdHis') . '.xlsx';
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . urlencode($filename) . '"');
-        header('Cache-Control: max-age=0');
-
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
-        exit;
+        return $this->exportToXlsx([
+            'query'    => $query,
+            'headers'  => ['ID', '手机号', '昵称', '邮箱', '性别', '状态', '创建时间'],
+            'columns'  => ['id', 'phone', 'nickname', 'email', 'gender', 'status', 'created_at'],
+            'maps'     => [
+                'gender' => $genderMap,
+                'status' => [0 => '禁用', 1 => '启用'],
+            ],
+            'filename' => '用户列表',
+        ]);
     }
 
     // POST /admin/user/import
     public function import()
     {
-        $file = request()->file('file');
-        if (!$file) {
-            return json(['code' => 1002, 'msg' => '请上传文件', 'data' => null]);
-        }
-
-        $ext = strtolower(pathinfo($file->getInfo('name'), PATHINFO_EXTENSION));
-        if (!in_array($ext, ['xlsx', 'xls'])) {
-            return json(['code' => 1002, 'msg' => '只支持 xlsx/xls 格式', 'data' => null]);
-        }
-
-        $spreadsheet = IOFactory::load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-        if (count($rows) <= 1) {
-            return json(['code' => 1002, 'msg' => '文件中没有数据', 'data' => null]);
-        }
-
-        // 根据表头名称映射列索引
-        $headerRow = $rows[0];
-        $colMap = [];
-        foreach ($headerRow as $idx => $title) {
-            $t = trim($title);
-            if ($t === '手机号') $colMap['phone'] = $idx;
-            elseif ($t === '昵称') $colMap['nickname'] = $idx;
-            elseif ($t === '邮箱') $colMap['email'] = $idx;
-            elseif ($t === '性别') $colMap['gender'] = $idx;
-            elseif ($t === '状态') $colMap['status'] = $idx;
-        }
-
-        if (!isset($colMap['phone'])) {
-            return json(['code' => 1002, 'msg' => '缺少"手机号"列', 'data' => null]);
-        }
-
         $genderMap = ['未知' => 0, '男' => 1, '女' => 2];
         $statusMap = ['启用' => 1, '禁用' => 0];
-        $success = 0;
-        $skip = 0;
-        $errors = [];
 
-        for ($i = 1, $len = count($rows); $i < $len; $i++) {
-            $row = $rows[$i];
-            $line = $i + 1;
-
-            $phone = trim($row[$colMap['phone']] ?? '');
-            if (empty($phone)) {
-                continue;
-            }
-
-            if (!preg_match('/^1[3-9]\d{9}$/', $phone)) {
-                $errors[] = "第{$line}行：手机号格式不正确";
-                continue;
-            }
-
-            $email = '';
-            if (isset($colMap['email'])) {
-                $email = trim($row[$colMap['email']] ?? '');
-                if ($email !== '' && !preg_match('/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $email)) {
-                    $errors[] = "第{$line}行：邮箱格式不正确";
-                    continue;
+        return $this->importFromXlsx([
+            'file'     => request()->file('file'),
+            'fields'   => ['phone' => '手机号', 'nickname' => '昵称', 'email' => '邮箱', 'gender' => '性别', 'status' => '状态'],
+            'required' => ['phone'],
+            'unique'   => ['phone'],
+            'table'    => 'user',
+            'validate' => function ($row, $line) {
+                if (!preg_match('/^1[3-9]\d{9}$/', $row['phone'])) {
+                    return "第{$line}行：手机号格式不正确";
                 }
-            }
-
-            $exists = Db::table('user')->where('phone', $phone)->find();
-            if ($exists) {
-                $skip++;
-                continue;
-            }
-
-            $nickname = isset($colMap['nickname']) ? trim($row[$colMap['nickname']] ?? '') : '';
-            $gender   = isset($colMap['gender']) ? ($genderMap[trim($row[$colMap['gender']] ?? '')] ?? 0) : 0;
-            $status   = isset($colMap['status']) ? ($statusMap[trim($row[$colMap['status']] ?? '')] ?? 1) : 1;
-
-            Db::table('user')->insert([
-                'phone'    => $phone,
-                'password' => password_hash('123456', PASSWORD_BCRYPT),
-                'nickname' => $nickname,
-                'email'    => $email,
-                'gender'   => $gender,
-                'status'   => $status,
-            ]);
-            $success++;
-        }
-
-        $msg = "导入完成，成功 {$success} 条";
-        if ($skip > 0) $msg .= "，跳过 {$skip} 条（手机号已存在）";
-        if ($errors) $msg .= "，" . implode('；', $errors);
-
-        return json(['code' => 0, 'msg' => $msg, 'data' => null]);
+                if (!empty($row['email']) && !preg_match('/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $row['email'])) {
+                    return "第{$line}行：邮箱格式不正确";
+                }
+                return null;
+            },
+            'transform' => function ($row) use ($genderMap, $statusMap) {
+                $row['gender'] = $genderMap[$row['gender']] ?? 0;
+                $row['status'] = $statusMap[$row['status']] ?? 1;
+                return $row;
+            },
+            'defaults' => ['password' => password_hash('123456', PASSWORD_BCRYPT)],
+        ]);
     }
 }
