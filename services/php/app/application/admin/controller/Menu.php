@@ -57,6 +57,20 @@ class Menu extends Controller
             return json(['code' => 1002, 'msg' => '无更新数据', 'data' => null]);
         }
 
+        if (isset($data['parent_id']) && $data['parent_id'] > 0) {
+            $old = Db::table('menu')->where('id', $id)->find();
+            if ($old && $old['parent_id'] != $data['parent_id']) {
+                $roleIds = Db::table('role_menu')->where('menu_id', $id)->column('DISTINCT role_id');
+                if (!empty($roleIds)) {
+                    $rows = [];
+                    foreach ($roleIds as $roleId) {
+                        $rows[] = ['role_id' => $roleId, 'menu_id' => $data['parent_id']];
+                    }
+                    Db::table('role_menu')->insertAll($rows, [], true);
+                }
+            }
+        }
+
         Db::table('menu')->where('id', $id)->update($data);
         return json(['code' => 0, 'msg' => 'success', 'data' => null]);
     }
