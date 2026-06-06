@@ -42,7 +42,7 @@ class Notice extends Controller
             ->join('admin a', 'n.admin_id = a.id', 'LEFT')
             ->where('n.status', 1)
             ->order('n.id', 'desc')
-            ->limit(20)
+            ->limit(10)
             ->select();
 
         return json(['code' => 0, 'msg' => 'success', 'data' => $list]);
@@ -63,7 +63,7 @@ class Notice extends Controller
             $query->where('n.id', '>', $admin['last_notice_seen_id']);
         }
 
-        $list = $query->order('n.id', 'desc')->limit(20)->select();
+        $list = $query->order('n.id', 'desc')->limit(10)->select();
 
         return json(['code' => 0, 'msg' => 'success', 'data' => $list]);
     }
