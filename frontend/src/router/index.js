@@ -17,6 +17,11 @@ const routes = [
     redirect: '/dashboard',
     children: [
       {
+        path: 'redirect/:path(.*)',
+        component: () => import('@/views/redirect/index'),
+        meta: { title: '重定向' }
+      },
+      {
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index'),
@@ -113,6 +118,12 @@ const routes = [
         meta: { title: '个人中心', componentName: 'Profile' }
       }
     ]
+  },
+  {
+    path: '*',
+    name: 'NotFound',
+    component: () => import('@/views/error/404'),
+    meta: { title: '页面未找到' }
   }
 ]
 

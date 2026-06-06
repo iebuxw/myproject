@@ -14,6 +14,7 @@
       </span>
     </router-link>
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
+      <li @click="refreshTag">刷新</li>
       <li @click="closeTag(selectedTag)">关闭</li>
       <li @click="closeOthers">关闭其他</li>
       <li @click="closeAll">关闭全部</li>
@@ -67,6 +68,13 @@ export default {
       if (isActive) {
         this.toLastView()
       }
+    },
+    refreshTag() {
+      const { path } = this.selectedTag
+      this.$store.commit('DEL_VISITED_VIEW', path)
+      this.$nextTick(() => {
+        this.$router.replace({ path: '/redirect' + path })
+      })
     },
     closeOthers() {
       this.$store.commit('DEL_OTHER_VIEWS', this.selectedTag.path)
