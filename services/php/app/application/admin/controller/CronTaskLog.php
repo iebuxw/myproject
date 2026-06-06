@@ -34,6 +34,17 @@ class CronTaskLog extends Controller
         $total = $query->count();
         $list  = $query->order('id', 'desc')->page((int)$page, (int)$limit)->select();
 
+        $taskIds = array_unique(array_filter(array_column($list, 'task_id')));
+        $taskMap = [];
+        if (!empty($taskIds)) {
+            $tasks = Db::table('cron_task')->where('id', 'in', $taskIds)->column('name', 'id');
+            $taskMap = $tasks;
+        }
+        foreach ($list as &$item) {
+            $item['task_name'] = isset($taskMap[$item['task_id']]) ? $taskMap[$item['task_id']] : '(已删除)';
+        }
+        unset($item);
+
         return json(['code' => 0, 'msg' => 'success', 'data' => [
             'list'  => $list,
             'total' => $total,

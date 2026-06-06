@@ -6,8 +6,10 @@
       </div>
 
       <el-form :model="searchForm" inline size="small" style="margin-bottom:15px">
-        <el-form-item label="任务ID">
-          <el-input v-model="searchForm.task_id" placeholder="任务ID" clearable style="width:100px" />
+        <el-form-item label="任务名称">
+          <el-select v-model="searchForm.task_id" placeholder="全部" clearable style="width:180px">
+            <el-option v-for="t in taskOptions" :key="t.id" :label="t.name" :value="t.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="全部" clearable style="width:120px">
@@ -34,7 +36,7 @@
 
       <el-table :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="task_id" label="任务ID" width="70" />
+        <el-table-column prop="task_name" label="任务名称" width="140" />
         <el-table-column prop="command" label="命令" min-width="140" />
         <el-table-column prop="status" label="状态" width="80">
           <template slot-scope="{row}">
@@ -78,19 +80,29 @@ export default {
   data() {
     return {
       list: [],
+      taskOptions: [],
       page: 1,
       limit: 10,
       total: 0,
-      searchForm: { task_id: '', status: undefined },
+      searchForm: { task_id: undefined, status: undefined },
       dateRange: null,
       outputVisible: false,
       outputContent: ''
     }
   },
   created() {
+    this.fetchTaskOptions()
     this.fetchList()
   },
   methods: {
+    async fetchTaskOptions() {
+      try {
+        const res = await request.get('/cron_task/list', { params: { page: 1, limit: 999 } })
+        if (res.code === 0) {
+          this.taskOptions = res.data.list
+        }
+      } catch (e) {}
+    },
     async fetchList() {
       try {
         const params = { page: this.page, limit: this.limit }
@@ -112,7 +124,7 @@ export default {
       this.fetchList()
     },
     handleReset() {
-      this.searchForm = { task_id: '', status: undefined }
+      this.searchForm = { task_id: undefined, status: undefined }
       this.dateRange = null
       this.page = 1
       this.fetchList()
