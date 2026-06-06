@@ -6,7 +6,7 @@ return [
     'password'   => getenv('REDIS_PASSWORD') ?: '',
     'select'     => 0,
     'timeout'    => 0,
-    'expire'     => 3600,
+    'expire'     => 14400,
     'persistent' => false,
     'prefix'     => 'session:',
 ];
