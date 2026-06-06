@@ -145,11 +145,7 @@ class DbBackup extends Controller
             return json(['code' => 500, 'msg' => '备份文件不存在', 'data' => null]);
         }
 
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $backup['filename'] . '"');
-        header('Content-Length: ' . filesize($filepath));
-        readfile($filepath);
-        exit;
+        return download('/var/www/backups/' . $backup['filename'], $backup['filename']);
     }
 
     // DELETE /admin/db_backup/delete
