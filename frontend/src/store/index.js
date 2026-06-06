@@ -15,7 +15,8 @@ export default new Vuex.Store({
     captchaKey: '',
     captchaImage: '',
     siteConfig: { site_name: '', logo: '', logo_url: '' },
-    siteConfigLoaded: false
+    siteConfigLoaded: false,
+    visitedViews: []
   },
   mutations: {
     SET_TOKEN(state, token) {
@@ -50,7 +51,25 @@ export default new Vuex.Store({
       state.permissions = []
       state.siteConfig = { site_name: '', logo: '', logo_url: '' }
       state.siteConfigLoaded = false
+      state.visitedViews = []
       removeToken()
+    },
+    ADD_VISITED_VIEW(state, view) {
+      if (state.visitedViews.some(v => v.path === view.path)) return
+      state.visitedViews.push({
+        name: view.meta && view.meta.componentName || view.name,
+        path: view.path,
+        title: view.meta && view.meta.title || view.name
+      })
+    },
+    DEL_VISITED_VIEW(state, path) {
+      state.visitedViews = state.visitedViews.filter(v => v.path !== path)
+    },
+    DEL_OTHER_VIEWS(state, path) {
+      state.visitedViews = state.visitedViews.filter(v => v.path === path || v.path === '/dashboard')
+    },
+    DEL_ALL_VIEWS(state) {
+      state.visitedViews = state.visitedViews.filter(v => v.path === '/dashboard')
     }
   },
   actions: {

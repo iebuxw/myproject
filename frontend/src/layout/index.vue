@@ -20,8 +20,11 @@
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
+      <tags-view />
       <el-main>
-        <router-view />
+        <keep-alive :include="cachedViews">
+          <router-view />
+        </keep-alive>
       </el-main>
     </el-container>
   </el-container>
@@ -30,12 +33,16 @@
 <script>
 import { mapState } from 'vuex'
 import Sidebar from '@/components/Sidebar'
+import TagsView from '@/components/TagsView'
 
 export default {
   name: 'Layout',
-  components: { Sidebar },
+  components: { Sidebar, TagsView },
   computed: {
-    ...mapState(['admin', 'menus', 'siteConfig'])
+    ...mapState(['admin', 'menus', 'siteConfig', 'visitedViews']),
+    cachedViews() {
+      return this.visitedViews.map(v => v.name).filter(Boolean)
+    }
   },
   created() {
     if (!this.admin) {
