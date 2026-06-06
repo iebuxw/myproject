@@ -81,6 +81,18 @@
       <p style="color:#909399;font-size:13px;margin-bottom:12px">{{ currentNotice.admin_name }} · {{ currentNotice.created_at }}</p>
       <div style="line-height:1.8;white-space:pre-wrap">{{ currentNotice.content }}</div>
     </el-dialog>
+
+    <el-dialog title="系统公告" :visible.sync="popupVisible" width="600px" :close-on-click-modal="false">
+      <div v-for="(item, idx) in popupNotices" :key="item.id" style="margin-bottom:20px">
+        <h3 style="margin:0 0 8px">{{ item.title }}</h3>
+        <p style="color:#909399;font-size:13px;margin:0 0 8px">{{ item.admin_name }} · {{ item.created_at }}</p>
+        <div style="line-height:1.8;white-space:pre-wrap">{{ item.content }}</div>
+        <el-divider v-if="idx < popupNotices.length - 1" />
+      </div>
+      <span slot="footer">
+        <el-button type="primary" @click="handlePopupSeen">我知道了</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -96,12 +108,15 @@ export default {
       serverInfo: {},
       serverError: '',
       detailVisible: false,
-      currentNotice: {}
+      currentNotice: {},
+      popupVisible: false,
+      popupNotices: []
     }
   },
   computed: { ...mapState(['admin', 'siteConfig']), ...mapGetters(['hasPerm']) },
   created() {
     this.fetchNotices()
+    this.fetchPopupNotices()
     this.fetchServerInfo()
   },
   methods: {
@@ -114,6 +129,22 @@ export default {
     showDetail(row) {
       this.currentNotice = row
       this.detailVisible = true
+    },
+    async fetchPopupNotices() {
+      try {
+        const res = await request.get('/notice/popup')
+        if (res.code === 0 && res.data.length) {
+          this.popupNotices = res.data
+          this.popupVisible = true
+        }
+      } catch (e) {}
+    },
+    async handlePopupSeen() {
+      try {
+        const maxId = this.popupNotices.reduce((max, n) => Math.max(max, n.id), 0)
+        await request.post('/notice/seen', { max_id: maxId })
+      } catch (e) {}
+      this.popupVisible = false
     },
     async fetchServerInfo() {
       try {

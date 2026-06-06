@@ -14,6 +14,8 @@ class Auth
         'server/',
         'system_config/read',
         'notice/published',
+        'notice/popup',
+        'notice/seen',
     ];
 
     public function handle($request, \Closure $next)

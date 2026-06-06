@@ -31,6 +31,11 @@
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">{{ row.status === 1 ? '已发布' : '草稿' }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="is_popup" label="弹窗" width="80">
+          <template slot-scope="{row}">
+            <el-tag :type="row.is_popup === 1 ? 'warning' : 'info'" size="small">{{ row.is_popup === 1 ? '是' : '否' }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="180" />
         <el-table-column label="操作" width="150">
           <template slot-scope="{row}">
@@ -65,6 +70,9 @@
             <el-option :value="0" label="草稿" />
           </el-select>
         </el-form-item>
+        <el-form-item label="登录弹窗">
+          <el-switch v-model="form.is_popup" :active-value="1" :inactive-value="0" active-text="是" inactive-text="否" />
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -88,7 +96,7 @@ export default {
       searchForm: { title: '', status: undefined },
       dialogVisible: false,
       dialogTitle: '',
-      form: { id: 0, title: '', content: '', status: 1 }
+      form: { id: 0, title: '', content: '', status: 1, is_popup: 0 }
     }
   },
   created() {
@@ -124,12 +132,12 @@ export default {
     },
     handleAdd() {
       this.dialogTitle = '新增公告'
-      this.form = { id: 0, title: '', content: '', status: 1 }
+      this.form = { id: 0, title: '', content: '', status: 1, is_popup: 0 }
       this.dialogVisible = true
     },
     handleEdit(row) {
       this.dialogTitle = '编辑公告'
-      this.form = { id: row.id, title: row.title, content: row.content, status: row.status }
+      this.form = { id: row.id, title: row.title, content: row.content, status: row.status, is_popup: row.is_popup }
       this.dialogVisible = true
     },
     handleDelete(row) {
@@ -148,13 +156,13 @@ export default {
       }).catch(() => {})
     },
     async handleSubmit() {
-      const { id, title, content, status } = this.form
+      const { id, title, content, status, is_popup } = this.form
       if (!title) return this.$message.warning('请输入标题')
       if (!content) return this.$message.warning('请输入内容')
 
       const api = id ? request.put : request.post
       const url = id ? '/notice/edit' : '/notice/add'
-      const data = id ? { id, title, content, status } : { title, content, status }
+      const data = id ? { id, title, content, status, is_popup } : { title, content, status, is_popup }
 
       const res = await api(url, data)
       if (res.code === 0) {

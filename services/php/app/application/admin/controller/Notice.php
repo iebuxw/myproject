@@ -15,7 +15,7 @@ class Notice extends Controller
         $status = input('get.status', -1);
 
         $query = Db::table('notice')->alias('n')
-            ->field('n.id,n.title,n.content,n.admin_id,n.status,n.created_at,n.updated_at,a.username as admin_name')
+            ->field('n.id,n.title,n.content,n.admin_id,n.status,n.is_popup,n.created_at,n.updated_at,a.username as admin_name')
             ->join('admin a', 'n.admin_id = a.id', 'LEFT');
 
         if (!empty($title)) {
@@ -38,7 +38,7 @@ class Notice extends Controller
     public function published()
     {
         $list = Db::table('notice')->alias('n')
-            ->field('n.id,n.title,n.content,n.created_at,a.username as admin_name')
+            ->field('n.id,n.title,n.content,n.is_popup,n.created_at,a.username as admin_name')
             ->join('admin a', 'n.admin_id = a.id', 'LEFT')
             ->where('n.status', 1)
             ->order('n.id', 'desc')
@@ -48,13 +48,47 @@ class Notice extends Controller
         return json(['code' => 0, 'msg' => 'success', 'data' => $list]);
     }
 
+    // GET /admin/notice/popup — 登录后弹窗公告
+    public function popup()
+    {
+        $admin = request()->admin;
+
+        $query = Db::table('notice')->alias('n')
+            ->field('n.id,n.title,n.content,n.created_at,a.username as admin_name')
+            ->join('admin a', 'n.admin_id = a.id', 'LEFT')
+            ->where('n.status', 1)
+            ->where('n.is_popup', 1);
+
+        if (!empty($admin['last_notice_seen_id'])) {
+            $query->where('n.id', '>', $admin['last_notice_seen_id']);
+        }
+
+        $list = $query->order('n.id', 'desc')->limit(20)->select();
+
+        return json(['code' => 0, 'msg' => 'success', 'data' => $list]);
+    }
+
+    // POST /admin/notice/seen — 标记已查看弹窗公告
+    public function seen()
+    {
+        $maxId = input('post.max_id', 0);
+        if ($maxId > 0) {
+            Db::table('admin')->where('id', request()->adminId)->update([
+                'last_notice_seen_id' => (int)$maxId,
+            ]);
+        }
+
+        return json(['code' => 0, 'msg' => 'success', 'data' => null]);
+    }
+
     // POST /admin/notice/add
     public function save()
     {
-        $title   = input('post.title', '');
-        $content = input('post.content', '');
-        $status  = input('post.status', 1);
-        $adminId = request()->adminId;
+        $title    = input('post.title', '');
+        $content  = input('post.content', '');
+        $status   = input('post.status', 1);
+        $isPopup  = input('post.is_popup', 0);
+        $adminId  = request()->adminId;
 
         if (empty($title) || empty($content)) {
             return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
@@ -65,6 +99,7 @@ class Notice extends Controller
             'content'  => $content,
             'admin_id' => $adminId,
             'status'   => (int)$status,
+            'is_popup' => (int)$isPopup,
         ]);
 
         return json(['code' => 0, 'msg' => 'success', 'data' => null]);
@@ -73,10 +108,11 @@ class Notice extends Controller
     // PUT /admin/notice/edit
     public function update()
     {
-        $id      = input('put.id', 0);
-        $title   = input('put.title', '');
-        $content = input('put.content', '');
-        $status  = input('put.status');
+        $id       = input('put.id', 0);
+        $title    = input('put.title', '');
+        $content  = input('put.content', '');
+        $status   = input('put.status');
+        $isPopup  = input('put.is_popup');
 
         if ($id <= 0) {
             return json(['code' => 1002, 'msg' => '参数错误', 'data' => null]);
@@ -91,6 +127,9 @@ class Notice extends Controller
         }
         if ($status !== null && $status !== '') {
             $data['status'] = (int)$status;
+        }
+        if ($isPopup !== null && $isPopup !== '') {
+            $data['is_popup'] = (int)$isPopup;
         }
 
         if (!empty($data)) {

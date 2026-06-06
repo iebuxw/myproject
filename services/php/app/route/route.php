@@ -57,6 +57,8 @@ Route::group('admin', function () {
     // Notice
     Route::get('notice/list', 'admin/Notice/index');
     Route::get('notice/published', 'admin/Notice/published');
+    Route::get('notice/popup', 'admin/Notice/popup');
+    Route::post('notice/seen', 'admin/Notice/seen');
     Route::post('notice/add', 'admin/Notice/save');
     Route::put('notice/edit', 'admin/Notice/update');
     Route::delete('notice/delete', 'admin/Notice/delete');
