@@ -68,7 +68,7 @@
       >
         <i class="el-icon-upload" />
         <div class="el-upload__text">将 Excel 文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">支持 .xlsx / .xls 格式，第一行为表头（手机号、昵称、邮箱、性别、状态）</div>
+        <div class="el-upload__tip" slot="tip">支持 .xlsx / .xls 格式，<a href="/templates/user_import_template.xlsx" download style="color:#409eff">下载导入模板</a></div>
       </el-upload>
       <span slot="footer">
         <el-button @click="importVisible = false">取消</el-button>
