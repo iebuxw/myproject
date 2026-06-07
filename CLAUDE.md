@@ -96,9 +96,14 @@ admin 和 user 是完全独立的身份体系，混淆会导致错误的数据�
 统一通过 `Attachment` 控制器（`POST /admin/attachment/upload`），不入库的上传（如头像）用 `Profile::avatar()`。**Go 端不做上传**——为什么：文件存储在 PHP 容器，Go 容器无法访问文件系统；MIME 校验等安全逻辑统一在 PHP 端处理，避免重复实现和标准不一致。
 
 - **存储**：PHP 容器 `/var/www/html/uploads/{子目录}/`，Docker 卷 `upload_data` 持久化，Nginx `location /uploads/` 静态服务（30d 缓存，禁 PHP 执行）
+- **备份**：数据库备份存储在 PHP 容器 `/var/www/backups/`，Docker 卷 `backup_data` 持久化
 - **子目录约定**：`avatars`（头像）、`attachments`（通用附件），新场景在 `entrypoint.sh` 加 `mkdir -p`
 - **安全**：MIME 白名单校验（`finfo` 读取真实类型，非扩展名），上限 10MB（nginx `client_max_body_size` + php `upload_max_filesize` 对齐）
 - **删除**：同时删 DB 记录和物理文件
+
+### 其他目录
+
+- `deploy/`：生产环境 sysctl 优化配置
 
 ### 详细结构
 

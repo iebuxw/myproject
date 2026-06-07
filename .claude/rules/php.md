@@ -12,9 +12,13 @@ PHP 7.4 + ThinkPHP 5.1。数据库配置从环境变量读取（`getenv()`）。
 ```
 application/admin/
 ├── controller/    # 控制器
-├── middleware/     # Auth（RBAC 权限）、OperationLog（操作日志记录）等
-└── traits/        # 可复用 trait
+├── middleware/    # 中间件，例如：Auth（RBAC 权限）、OperationLog（操作日志记录）等
+└── traits/        # 可复用 trait，例如：ExcelTrait：Excel 导入导出等
 ```
+
+## Command 模块
+
+`application/command/` 存放 CLI 命令（定时任务等），通过 `application/command.php` 注册。
 
 路由在 `route/route.php` 定义
 

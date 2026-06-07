@@ -7,6 +7,14 @@ paths:
 
 Vue2 + Element UI 2.15 + Vue Router + Vuex。前端通过 Nginx 统一入口访问，无跨域问题。PHP 返回的菜单权限树驱动侧边栏渲染。
 
+## 权限指令
+
+`v-auth="'xxx'"` 控制按钮级显示，基于 Vuex `permissions` 状态响应式隐藏无权限元素。
+
+## 字典工具
+
+`utils/dict.js` 提供 `loadDicts(...codes)` 批量加载字典项（带缓存）和 `dictMap(items)` 转换为 `{value: label}` 映射，配合后端 `/dict_data/items` 接口。
+
 ## 源码结构
 
 ```
