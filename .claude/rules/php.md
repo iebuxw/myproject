@@ -18,6 +18,11 @@ application/admin/
 
 路由在 `route/route.php` 定义
 
+## 约定
+
+- **`url_route_must = true`**：新接口必须注册路由，否则 404
+- **`default_filter = 'trim'`**：所有 `input()` 自动去首尾空格
+
 ## ThinkPHP 5.1 文档
 
 写 PHP 代码时必须遵循 ThinkPHP 5.1 框架规范，不确定用法时用 WebFetch 查阅官方文档：
