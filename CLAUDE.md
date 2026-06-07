@@ -53,8 +53,9 @@ Nginx 对外暴露 :80（HTTP→HTTPS 重定向）和 :443（SSL），按路径�
 
 ### 认证体系
 
-- **PHP 后台**：Session 驱动（Redis `session:` 前缀，3600s 过期）。`Auth` 中间件从 Session 取 `admin_id`，通过 `admin_role` + `role_menu` 联表查权限路径存入 `$request->authPaths`。
+- **PHP 后台**：Session 驱动（Redis `session:` 前缀）。`Auth` 中间件从 Session 取 `admin_id`，通过 `admin_role` + `role_menu` 联表查权限路径存入 `$request->authPaths`。
 - **Go API**：JWT 无状态认证。access token（2h）+ refresh token（7d），请求头 `Authorization: Bearer <token>`。登出时 token 加入 Redis 黑名单（`blacklist:` 前缀，2h TTL）。
+- **维护模式**：Go JWT 中间件检查 Redis 键 `system:maintenance`，存在时拒绝所有 APP 请求并返回维护中提示。
 
 ### 数据库
 

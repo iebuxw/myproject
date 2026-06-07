@@ -13,7 +13,6 @@ PHP 7.4 + ThinkPHP 5.1。数据库配置从环境变量读取（`getenv()`）。
 application/admin/
 ├── controller/    # 控制器
 ├── middleware/     # Auth（RBAC 权限）、OperationLog（操作日志记录）等
-├── command/       # CronTask 自定义命令，通过 command.php 注册
 └── traits/        # 可复用 trait
 ```
 
