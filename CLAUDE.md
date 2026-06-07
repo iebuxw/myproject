@@ -39,12 +39,13 @@ Nginx 多阶段 Dockerfile 构建 Vue，前端产物打在镜像里。改前端�
 
 ## 架构概览
 
-Nginx 是唯一对外暴露端口（:80），按路径前缀分发：
+Nginx 对外暴露 :80（HTTP→HTTPS 重定向）和 :443（SSL），按路径前缀分发：
 
 | 路径 | 目标 | 说明 |
 |------|------|------|
 | `/admin` | `php:9000` (PHP-FPM) | 后台管理，入口 `public/index.php` |
 | `/api/` | `go:8080` (Gin) | APP API，前缀 `/api/v1` |
+| `/swagger/` | `go:8080` (Gin) | Swagger API 文档 UI |
 | `/` | `/usr/share/nginx/html` | Vue 静态资源 |
 
 - PHP 代码卷挂载到容器，改代码即时生效

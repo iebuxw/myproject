@@ -7,6 +7,18 @@ paths:
 
 PHP 7.4 + ThinkPHP 5.1。数据库配置从环境变量读取（`getenv()`）。所有 `/admin` 路由通过 `Auth` 中间件（除 login/logout 外），中间件通过 `admin_role` + `role_menu` 获取管理员的 `authPaths`，各控制器自行检查具体按钮权限。Nginx 通过 fastcgi_pass 转发 PHP，SCRIPT_FILENAME 指向 `/var/www/html/public/index.php`。
 
+## Admin 模块结构
+
+```
+application/admin/
+├── controller/    # 控制器
+├── middleware/     # Auth（RBAC 权限）、OperationLog（操作日志记录）等
+├── command/       # CronTask 自定义命令，通过 command.php 注册
+└── traits/        # 可复用 trait
+```
+
+路由在 `route/route.php` 定义
+
 ## ThinkPHP 5.1 文档
 
 写 PHP 代码时必须遵循 ThinkPHP 5.1 框架规范，不确定用法时用 WebFetch 查阅官方文档：
