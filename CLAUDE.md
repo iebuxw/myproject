@@ -19,8 +19,10 @@ docker-compose logs -f
 # 停止所有服务
 docker-compose down
 
-# 单独重启某个服务
-docker-compose restart php | go | nginx
+# 单独重启某个服务（选其一）
+docker-compose restart php
+docker-compose restart go
+docker-compose restart nginx
 ```
 
 **本地开发（不使用 Docker）**：
