@@ -48,18 +48,24 @@ Nginx 对外暴露 :80（HTTP→HTTPS 重定向）和 :443（SSL），按路径�
 | `/swagger/` | `go:8080` (Gin) | Swagger API 文档 UI |
 | `/` | `/usr/share/nginx/html` | Vue 静态资源 |
 
-- PHP 代码卷挂载到容器，改代码即时生效
+- PHP 代码卷挂载到容器，`APP_DEBUG=1` 时改代码即时生效（Opcache 实时刷新）；生产模式（`APP_DEBUG=0`）需 `docker-compose restart php` 使改动生效
+- `APP_DEBUG=1` 同时跳过管理员登录验证码校验，切勿在生产环境开启
 - Go/前端用多阶段 Dockerfile 构建，改代码后需 `docker-compose up -d --build`
 
 ### 认证体系
 
 - **PHP 后台**：Session 驱动（Redis `session:` 前缀）。`Auth` 中间件从 Session 取 `admin_id`，通过 `admin_role` + `role_menu` 联表查权限路径存入 `$request->authPaths`。
 - **Go API**：JWT 无状态认证。access token（2h）+ refresh token（7d），请求头 `Authorization: Bearer <token>`。登出时 token 加入 Redis 黑名单（`blacklist:` 前缀，2h TTL）。
-- **维护模式**：Go JWT 中间件检查 Redis 键 `system:maintenance`，存在时拒绝所有 APP 请求并返回维护中提示。
+- **维护模式**：Go JWT 中间件检查 Redis DB 0 的 `system:maintenance` 键，存在时拒绝所有 APP 请求。注意：PHP `DbBackup` 通过 Cache 写入 Redis DB 1，与 Go 读取的 DB 0 不同，两端维护标志互不可见。
+- **Redis 分库**：Session（DB 0）、Go 黑名单/维护模式（DB 0）、PHP Cache/验证码（DB 1）。跨端共享 Redis 键必须注意 DB 一致性。
 
 ### 数据库
 
 MySQL 5.7，迁移文件在 `services/mysql/migrations/`。**改数据库只新增迁移文件，禁止修改已有迁移**——为什么：已有环境 schema 状态不可预测，覆盖式迁移会丢数据。已有环境执行 `docker exec mysql bash -c "tr -d '\r' < /scripts/migrate.sh | bash"`。迁移 SQL 建议幂等（`IF NOT EXISTS`、`ON DUPLICATE KEY UPDATE`）。
+
+### 超级管理员
+
+id=1 为超级管理员，硬编码不可删除/禁用，跳过按钮级权限检查和验证码，拥有所有功能权限。新增管理员相关逻辑时需考虑此特殊角色。
 
 ### 术语约束（重要）
 
@@ -84,7 +90,7 @@ admin 和 user 是完全独立的身份体系，混淆会导致错误的数据�
 {"code": 0, "msg": "success", "data": {...}}
 ```
 
-错误码：`0`=成功，`1001`=未登录/token无效，`1002`=参数错误，`1003`=用户名/密码错误，`1004`=管理员/用户不存在，`1005`=已存在/重复，`500`=服务端错误。
+错误码：`0`=成功，`1001`=未登录/token无效，`1002`=参数错误，`1003`=用户名/密码错误，`1004`=管理员/用户不存在，`1005`=已存在/重复，`1006`=不能删除超级管理员，`1007`=无权限，`500`=服务端错误。
 
 ### 文件上传
 

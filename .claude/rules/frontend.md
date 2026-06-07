@@ -7,6 +7,10 @@ paths:
 
 Vue2 + Element UI 2.15 + Vue Router + Vuex。前端通过 Nginx 统一入口访问，无跨域问题。PHP 返回的菜单权限树驱动侧边栏渲染。
 
+## 本地开发注意
+
+`npm run serve` 仅代理 `/admin` 到本地 PHP，`/api/`（Go API）无代理规则。需直连 Go API 时，在 `vue.config.js` 的 `devServer.proxy` 中添加 `/api` 代理，或通过 Docker Nginx 统一入口访问。
+
 ## 源码结构
 
 ```
